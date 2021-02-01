@@ -25,7 +25,7 @@ function PDBePvTracksSection(ctx) {
                         <span class="icon icon-functional hideLabelIcon" data-icon="x" @click=${e => {e.stopPropagation();ctx.layoutHelper.hideSubTrack(trackIndex, subtrackIndex)}} 
                         title="Hide this section"></span> 
                         <div class="pvSubtrackLabel_${trackIndex}_${subtrackIndex}" style="word-break: break-all;"></div>
-                        <span class="icon icon-functional labelZoomIcon pvZoomIcon_${trackIndex}_${subtrackIndex}" data-icon="T" @click="${e => { ctx.layoutHelper.zoomTrack({start:1, end: null, trackData: subtrackData}, trackIndex+'_'+subtrackIndex); }}
+                        <span class="icon icon-functional labelZoomIconRight pvZoomIcon_${trackIndex}_${subtrackIndex}" data-icon="T" @click="${e => { ctx.layoutHelper.zoomTrack({start:1, end: null, trackData: subtrackData}, trackIndex+'_'+subtrackIndex); }}
                         title="Click to zoom-out this section"></span>
 
                         ${subtrackData.labelTooltip ? html`
