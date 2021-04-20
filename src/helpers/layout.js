@@ -182,7 +182,9 @@ class LayoutHelper {
                 trackEle.parentNode.style.paddingRight = scrollbarWidthVal+'px';
             }
     
-            if(type == 'track' && trackIndex == 0){
+            const { expandFirstTrack = true } = this.ctx.viewerData;
+
+            if(type == 'track' && trackIndex == 0 && expandFirstTrack){
               this.ctx.querySelectorAll('.pvTracks_0')[0].classList.add("expanded");
               this.ctx.querySelectorAll('.pvTracks_0')[0].querySelectorAll('.pvTrack')[0].style.display = 'none';
               this.ctx.querySelectorAll('.pvSubtracks_0')[0].style.display = 'block';
