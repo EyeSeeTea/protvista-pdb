@@ -24,6 +24,7 @@ class ProtvistaPDB extends HTMLElement {
             displaySequence: true,
             displayConservation: false,
             displayVariants: false,
+            expandFirstTrack: true,
             sequence: undefined,
             length: undefined,
             tracks: [],
@@ -144,6 +145,11 @@ class ProtvistaPDB extends HTMLElement {
         this.layoutHelper.removeEventSubscription();
     }
 
+    fireActionEvent(detail) {
+        const name = "protvista-pdb.action"
+        const ev = new CustomEvent(name, { detail, bubbles: true, cancelable: false });
+        this.dispatchEvent(ev);
+    }
   
 }
 

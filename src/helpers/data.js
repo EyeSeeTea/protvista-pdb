@@ -19,6 +19,7 @@ class DataHelper {
             displaySequence: true,
             displayConservation: true,
             displayVariants: true,
+            expandFirstTrack: true,
             sequence: undefined,
             length: undefined,
             tracks: [],

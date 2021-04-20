@@ -2,6 +2,7 @@ class LayoutHelper {
 
     constructor(ctx) {
         this.ctx = ctx;
+        this.handlers = [];
     }
 
     postProcessLayout() {
@@ -181,7 +182,9 @@ class LayoutHelper {
                 trackEle.parentNode.style.paddingRight = scrollbarWidthVal+'px';
             }
     
-            if(type == 'track' && trackIndex == 0){
+            const { expandFirstTrack = true } = this.ctx.viewerData;
+
+            if(type == 'track' && trackIndex == 0 && expandFirstTrack){
               this.ctx.querySelectorAll('.pvTracks_0')[0].classList.add("expanded");
               this.ctx.querySelectorAll('.pvTracks_0')[0].querySelectorAll('.pvTrack')[0].style.display = 'none';
               this.ctx.querySelectorAll('.pvSubtracks_0')[0].style.display = 'block';
@@ -623,45 +626,47 @@ class LayoutHelper {
         }));
     }
 
+    addEventListener(name, fn) {
+        this.handlers.push({name, fn});
+        document.addEventListener(name, fn)
+    }
+
     addEventSubscription() {
-        document.addEventListener("PDB.topologyViewer.click", e => {
+        this.addEventListener("PDB.topologyViewer.click", e => {
             this.handleExtEvents(e);
         });
 
-        document.addEventListener("PDB.topologyViewer.mouseover", e => {
+        this.addEventListener("PDB.topologyViewer.mouseover", e => {
             this.handleExtEvents(e);
         });
 
-        document.addEventListener("PDB.topologyViewer.mouseout", e => {
+        this.addEventListener("PDB.topologyViewer.mouseout", e => {
             this.handleExtEvents(e);
         });
 
-        document.addEventListener("PDB.litemol.click", e => {
+        this.addEventListener("PDB.litemol.click", e => {
             this.handleExtEvents(e);
         });
 
-        document.addEventListener("PDB.litemol.mouseover", e => {
+        this.addEventListener("PDB.litemol.mouseover", e => {
             this.handleExtEvents(e);
         });
 
-        document.addEventListener("PDB.molstar.click", e => {
+        this.addEventListener("PDB.molstar.click", e => {
             this.handleExtEvents(e);
         });
 
-        document.addEventListener("PDB.molstar.mouseover", e => {
+        this.addEventListener("PDB.molstar.mouseover", e => {
             this.handleExtEvents(e);
         });
     }
 
+
     removeEventSubscription() {
         if(this.ctx.subscribeEvents){
-            document.removeEventListener("PDB.topologyViewer.click");
-            document.removeEventListener("PDB.topologyViewer.mouseover");
-            document.removeEventListener("PDB.topologyViewer.mouseout");
-            document.removeEventListener("PDB.litemol.click");
-            document.removeEventListener("PDB.litemol.mouseover");
-            document.removeEventListener("PDB.molstar.click");
-            document.removeEventListener("PDB.molstar.mouseover");
+            this.handlers.forEach(handler => {
+                document.removeEventListener(handler.name, handler.fn);
+            })
         }
     }
 }
