@@ -103,7 +103,7 @@ class LayoutHelper {
     }
 
     getTrackHeight(trackDataLength, isOverlapping){
-        let eleHt = (trackDataLength > 1) ? 66 : 44;
+        let eleHt = (trackDataLength > 1) ? 74 : 44
         return eleHt;
     }
 
