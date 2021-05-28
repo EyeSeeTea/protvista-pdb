@@ -98,7 +98,7 @@ class ProtvistaPDB extends HTMLElement {
         const mainHtml = () => html`
         <div class="protvista-pdb">
             <span class="labelTooltipBox" style="display:none"></span>
-            <protvista-manager attributes="length displaystart displayend highlightstart highlightend highlightintervals activefilters filters">
+            <protvista-manager attributes="length displaystart displayend highlightstart highlightend activefilters filters">
                 
                 <!-- Navigation section -->
                 ${this.viewerData.displayNavigation ? html`${PDBePvNavSection(this)}` : ``}
