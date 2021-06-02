@@ -36,6 +36,10 @@ class ProtvistaPDB extends HTMLElement {
 
         // Create layout helper instance
         this.layoutHelper = new LayoutHelper(this);
+
+        this.addEventListener("protvista-click", e => {
+            this.setSubtrackFragmentsSelection(false);
+        });
     }
 
     set viewerdata(data) {
@@ -72,6 +76,7 @@ class ProtvistaPDB extends HTMLElement {
         this.formattedSubTracks = [];
         this.zoomedTrack = '';
         this.variantFilterAttr = JSON.stringify(filterData);
+        this.highlightedSubtrack = { trackIndex: undefined, subtrackIndex: undefined }
         
         this.displayLoadingMessage();
 
@@ -151,6 +156,42 @@ class ProtvistaPDB extends HTMLElement {
         this.dispatchEvent(ev);
     }
   
+    setSubtrackFragmentsSelection(isEnabled, trackIndex, subtrackIndex, subtrackData) {
+        const protvistaEl = this.querySelectorAll("protvista-pdb-track")[0];
+
+        document.querySelectorAll(".labelHighlightRight").forEach(el => {
+            el.classList.remove("enabled");
+        });
+
+        if (isEnabled) {
+            const buttonEl = this.querySelector(`.pvHighlight_${trackIndex}_${subtrackIndex}`);
+            const fragments1 = flatten(subtrackData.locations.map(location => location.fragments));
+            const fragments = fragments1.map(f => ({ start: f.start, end: f.end, color: f.color }));
+            const intervals = fragments.map(fragment => [fragment.start, fragment.end].join("-")).join(",");
+
+            sendEvent(protvistaEl, "change", { "highlightintervals": ":" + intervals });
+            sendEvent(protvistaEl, "protvista-multiselect", { type: "collection", fragments });
+
+            buttonEl.classList.add("enabled");
+        } else {
+            sendEvent(protvistaEl, "change", { "highlightintervals": null });
+            sendEvent(protvistaEl, "protvista-multiselect", { type: "collection", fragments: [] });
+        }
+    }
+}
+
+function flatten(arr) {
+    return arr.reduce((acc, val) => acc.concat(val), []);
+}
+
+function sendEvent(el, name, detail) {
+    if (!el) return;
+    const ev = new CustomEvent(name, {
+        detail,
+        bubbles: true,
+        cancelable: true
+    })
+    el.dispatchEvent(ev);
 }
 
 export default ProtvistaPDB;

@@ -25,7 +25,15 @@ function PDBePvTracksSection(ctx) {
                     @mouseover=${e => {e.stopPropagation();ctx.layoutHelper.showLabelTooltip(e)}} @mouseout=${e => {e.stopPropagation();ctx.layoutHelper.hideLabelTooltip()}}>
                         <span class="icon icon-functional hideLabelIcon" data-icon="x" @click=${e => {e.stopPropagation();ctx.layoutHelper.hideSubTrack(trackIndex, subtrackIndex)}} 
                         title="Hide this section"></span> 
-                        <div class="pvSubtrackLabel_${trackIndex}_${subtrackIndex}" style="word-break: break-all;" @click=${(ev) => onSubtrackClick(ctx, ev, subtrackData)}></div>
+                        <div class="pvSubtrackLabel_${trackIndex}_${subtrackIndex}" style="word-break: break-all;"></div>
+
+                        <span
+                            class="icon icon-functional ${getHighlightClass(ctx, trackIndex, subtrackIndex)}"
+                            data-icon="4"
+                            @click=${(ev) => highlightSubtrackFragments(ctx, trackIndex, subtrackIndex, subtrackData)}
+                            title="Click to highlight all fragments in subtrack"
+                        ></span>
+
                         <span class="icon icon-functional labelZoomIconRight pvZoomIcon_${trackIndex}_${subtrackIndex}" data-icon="1" @click="${e => { ctx.layoutHelper.zoomTrack({start:1, end: null, trackData: subtrackData}, trackIndex+'_'+subtrackIndex); }}
                         title="Click to zoom-out this section"></span>
 
@@ -42,7 +50,13 @@ function PDBePvTracksSection(ctx) {
         </div>
         <!-- Subrack Rows End -->
     `)}`
-        
+}
+
+function highlightSubtrackFragments(ctx, trackIndex, subtrackIndex, subtrackData) {
+    const buttonEl = ctx.querySelector(`.pvHighlight_${trackIndex}_${subtrackIndex}`);
+    const isEnabled = buttonEl ? !buttonEl.classList.contains("enabled") : true;
+    ctx.setSubtrackFragmentsSelection(isEnabled, trackIndex, subtrackIndex, subtrackData)
+
 }
 
 function renderAddButton(ctx, trackData) {
@@ -58,38 +72,18 @@ function renderAddButton(ctx, trackData) {
     `;
 }
 
-function flatten(arr) {
-    return arr.reduce((acc, val) => acc.concat(val), []);
-}
+function getHighlightClass(ctx, trackIndex, subtrackIndex) {
+    const { highlightedSubtrack } = ctx;
+    const isHighlighted = highlightedSubtrack.trackIndex === trackIndex &&
+        highlightedSubtrack.subtrackIndex === subtrackIndex;
 
-function sendEvent(el, name, detail) {
-    if (!el) return;
-    const ev = new CustomEvent(name, {
-        detail,
-        bubbles: true,
-        cancelable: true
-    })
-    el.dispatchEvent(ev);
-}
+    const classes = [
+        "labelHighlightRight",
+        `pvHighlight_${trackIndex}_${subtrackIndex}`,
+        isHighlighted ? "enabled" : "",
+    ]
 
-function onSubtrackClick(ctx, ev, subtrackData) {
-    stopEvent(ev);
-
-    const fragments1 = flatten(subtrackData.locations.map(location => location.fragments));
-    const fragments = fragments1.map(f => ({ start: f.start, end: f.end }));
-    const intervals = fragments.map(fragment => [fragment.start, fragment.end].join("-")).join(",");
-    const el = ctx.querySelectorAll("protvista-pdb-track")[0];
-
-    sendEvent(el, "change", {
-        "highlightstart": null,
-        "highlightend": null,
-        "highlightintervals": ":" + intervals,
-    })
-
-    sendEvent(el, "protvista-mouseover", {
-        type: "collection",
-        fragments: fragments,
-    })
+    return classes.filter(Boolean).join(" ");
 }
 
 function onAddEvent(ctx, trackData, ev) {
