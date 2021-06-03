@@ -10,6 +10,11 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
 
   connectedCallback() {
     super.connectedCallback()
+    this._highlightintervals = this.getAttribute("highlightintervals");
+  }
+
+  static get observedAttributes() {
+    return [...ProtvistaTrack.observedAttributes, "highlightintervals"];
   }
 
   _createTrack() {
@@ -32,6 +37,10 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
       .attr("fill", "rgba(255, 235, 59, 0.8)")
       .attr('stroke', 'black')
       .attr("height", this._height);
+
+
+    this.highlightedIntervals = this.svg
+      .append("g");
 
     // this.trackHighlighter.appendHighlightTo(this.svg);
 
@@ -180,6 +189,12 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
           })
         );
         
+        this.dispatchEvent(
+          new CustomEvent("protvista-unselect", {
+            bubbles: true,
+            cancelable: true
+          })
+        );
       });
   }
 
@@ -256,5 +271,35 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
     else return"#"+(4294967296+r*16777216+g*65536+b*256+(f?m(a*255):0)).toString(16).slice(1,f?undefined:-2)
   }
   
+  _updateHighlight() {
+    super._updateHighlight();
+
+    // this._highlightintervals -> ":10-20,50-60,110-200"
+    const intervalsString = (this._highlightintervals || "").split(":")[1] || "";
+
+    const intervals = intervalsString.split(",").filter(Boolean).map(ns => {
+      const [start, end] = ns.split("-").map(s => parseInt(s));
+      return { start, end };
+    })
+
+    const selection = this.highlightedIntervals
+      .selectAll("rect.hi")
+      .data(intervals)
+
+    selection.exit().remove()
+
+    selection.enter()
+      .append("rect")
+      .merge(selection)
+      .attr("class", "hi")
+      .attr("fill", "rgba(255, 235, 59, 0.8)")
+      .attr('stroke', 'black')
+      .attr("height", this._height)
+      .attr("x", interval => this.getXFromSeqPosition(interval.start))
+      .style("opacity", 0.3)
+      .attr("width", interval => this.getSingleBaseWidth() * (interval.end - interval.start + 1))
+
+  }
 }
+
 export default ProtvistaPdbTrack;

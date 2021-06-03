@@ -5,13 +5,14 @@ const CleanWebpackPlugin = require("clean-webpack-plugin");
 
 const PACKAGE_ROOT_PATH = process.cwd();
 const PKG_JSON = require(path.join(PACKAGE_ROOT_PATH, "package.json"));
+const name = PKG_JSON.name.replace(/^@\w+\//, "");
 
 const config = {
   entry: ["./src/index.js"],
   output: {
     path: path.resolve(PACKAGE_ROOT_PATH, "dist"),
-    library: camelCase(PKG_JSON.name, { pascalCase: true }),
-    filename: `${PKG_JSON.name}-${PKG_JSON.version}.js`
+    library: camelCase(name, { pascalCase: true }),
+    filename: `${name}-${PKG_JSON.version}.js`
   },
   target: "web",
   devtool: "source-map",
