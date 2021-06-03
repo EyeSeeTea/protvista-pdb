@@ -55,7 +55,7 @@ function PDBePvTracksSection(ctx) {
 function highlightSubtrackFragments(ctx, trackIndex, subtrackIndex, subtrackData) {
     const buttonEl = ctx.querySelector(`.pvHighlight_${trackIndex}_${subtrackIndex}`);
     const isEnabled = buttonEl ? !buttonEl.classList.contains("enabled") : true;
-    ctx.setSubtrackFragmentsSelection(isEnabled, trackIndex, subtrackIndex, subtrackData)
+    ctx.setSubtrackFragmentsSelection({ isEnabled, trackIndex, subtrackIndex, subtrackData })
 
 }
 

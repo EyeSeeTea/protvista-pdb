@@ -189,6 +189,12 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
           })
         );
         
+        this.dispatchEvent(
+          new CustomEvent("protvista-unselect", {
+            bubbles: true,
+            cancelable: true
+          })
+        );
       });
   }
 
