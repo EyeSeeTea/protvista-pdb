@@ -176,13 +176,7 @@ class ProtvistaPDB extends HTMLElement {
             const locFragments = flatten(subtrackData.locations.map(location => location.fragments));
 
             buttonEl.classList.add("enabled");
-
-            fragments = locFragments.map(f => ({
-                start: f.start,
-                end: f.end,
-                color: f.color,
-                ...(f.chainId ? { feature: { bestChainId: f.chainId } } : {}),
-            }));
+            fragments = locFragments.map(fragment => ({ ...fragment, feature: subtrackData }));
         } else {
             fragments = [];
         }
