@@ -29,6 +29,7 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
       .style("line-height", 0)
       .append("svg")
       .style('width', '100%')
+      .style("overflow", "visible")
       .attr("height", this._height);
 
     this.highlighted = this.svg
