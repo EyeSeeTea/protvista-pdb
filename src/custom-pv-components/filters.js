@@ -134,7 +134,11 @@ const applyFilter = (filterName, variants = []) => {
   const filterKeyword = keywordMap[filterName];
   return clonedVariants.filter(
     variant => {
-      return (variant.keywords && variant.keywords.indexOf(filterKeyword) > -1)
+      return (variant.keywords && (
+        variant.keywords.indexOf(filterKeyword) > -1 ||
+        // Check also filterName, so we can also filter by keywords not hardcoded in keywordMap.
+        variant.keywords.indexOf(filterName) > -1)
+      )
     }
   );
 }
