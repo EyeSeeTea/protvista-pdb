@@ -52,8 +52,13 @@ class ProtvistaPDB extends HTMLElement {
         this.viewerData.displaySequence = (typeof data.displaySequence !== 'undefined') ? data.displaySequence : true;
 
         if(typeof this.viewerData.sequenceConservation !== 'undefined') this.viewerData.displayConservation = true;
-        if(typeof this.viewerData.variants !== 'undefined') this.viewerData.displayVariants = true;
-        
+        if(typeof this.viewerData.variants !== 'undefined') {
+            this.viewerData.displayVariants = true;
+            /* Override default filters using variants viewer data */
+            if (this.viewerData.variants.filters)
+                this.variantFilterAttr = JSON.stringify(this.viewerData.variants.filters);
+        }
+
         this._render();
     }
 
