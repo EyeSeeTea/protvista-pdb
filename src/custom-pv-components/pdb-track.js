@@ -222,7 +222,8 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
     tooltip.style.marginTop = 0;
     
     tooltip.title = `${d.feature.type} ${d.start}-${d.end}`;
-    if(d.start == d.end) tooltip.title = `${d.feature.type} residue ${d.start}`;
+    // Don't add 'residue' tag when start == end.
+    if(d.start == d.end) tooltip.title = `${d.feature.type} ${d.start}`;
     tooltip.closeable = closeable;
 
     // Passing the content as a property as it can contain HTML
