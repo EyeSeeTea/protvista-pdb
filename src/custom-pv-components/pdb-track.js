@@ -284,6 +284,8 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
       return { start, end };
     })
 
+    if (!this.highlightedIntervals) return;
+
     const selection = this.highlightedIntervals
       .selectAll("rect.hi")
       .data(intervals)
