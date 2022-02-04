@@ -11,6 +11,7 @@ function PDBePvTracksSection(ctx) {
                 <i class="icon icon-functional" data-icon="R"></i>
                 </span>
                 ${help("track-help", trackData.help)}
+                ${renderAddButton(ctx, trackData)}
             </div>
             <div class="protvistaCol2 aggregate-track-content" style=${styleMap(trackData.labelColor ? {borderBottom: '1px solid lightgrey'} : {})}>
                 <protvista-pdb-track class="pvTrack" length="${ctx.viewerData.length}" layout="${ctx.layoutHelper.getTrackLayout(trackData.overlapping)}" height="${ctx.layoutHelper.getTrackHeight(trackData.length, trackData.overlapping)}"></protvista-pdb-track>
@@ -44,16 +45,34 @@ function PDBePvTracksSection(ctx) {
         
 }
 
+function renderAddButton(ctx, trackData) {
+    const actions = trackData.actions || {};
+    if (!actions.add) return;
+
+    return html`
+        <button
+            class="track-action-add"
+            title="${actions.add.title}"
+            @click=${(ev) => onAddEvent(ctx, trackData, ev)}
+        >+</button>
+    `;
+}
+
+function onAddEvent(ctx, trackData, ev) {
+    stopEvent(ev);
+    ctx.fireActionEvent({ type: "add", trackId: trackData.id });
+}
+
 function help(className, message) {
-    if (message) {
-        return html`
-            <button
-                class="${className}"
-                title="${message}"
-                @click=${stopEvent}
-            >?</button>
-        `
-    }
+    if (!message) return;
+
+    return html`
+        <button
+            class="${className}"
+            title="${message}"
+            @click=${stopEvent}
+        >?</button>
+    `;
 }
 
 function stopEvent(ev) {
