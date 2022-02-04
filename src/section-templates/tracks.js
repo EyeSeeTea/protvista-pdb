@@ -10,6 +10,7 @@ function PDBePvTracksSection(ctx) {
                 <span class="protvistaResetSectionIcon pvResetSection_${trackIndex}" @click=${e => {e.stopPropagation();ctx.layoutHelper.resetSection(trackIndex)}} title="Reset section">
                 <i class="icon icon-functional" data-icon="R"></i>
                 </span>
+                ${help("track-help", trackData.help)}
             </div>
             <div class="protvistaCol2 aggregate-track-content" style=${styleMap(trackData.labelColor ? {borderBottom: '1px solid lightgrey'} : {})}>
                 <protvista-pdb-track class="pvTrack" length="${ctx.viewerData.length}" layout="${ctx.layoutHelper.getTrackLayout(trackData.overlapping)}" height="${ctx.layoutHelper.getTrackHeight(trackData.length, trackData.overlapping)}"></protvista-pdb-track>
@@ -24,12 +25,13 @@ function PDBePvTracksSection(ctx) {
                         <span class="icon icon-functional hideLabelIcon" data-icon="x" @click=${e => {e.stopPropagation();ctx.layoutHelper.hideSubTrack(trackIndex, subtrackIndex)}} 
                         title="Hide this section"></span> 
                         <div class="pvSubtrackLabel_${trackIndex}_${subtrackIndex}" style="word-break: break-all;"></div>
-                        <span class="icon icon-functional labelZoomIcon pvZoomIcon_${trackIndex}_${subtrackIndex}" data-icon="T" @click="${e => { ctx.layoutHelper.zoomTrack({start:1, end: null, trackData: subtrackData}, trackIndex+'_'+subtrackIndex); }}
+                        <span class="icon icon-functional labelZoomIconRight pvZoomIcon_${trackIndex}_${subtrackIndex}" data-icon="1" @click="${e => { ctx.layoutHelper.zoomTrack({start:1, end: null, trackData: subtrackData}, trackIndex+'_'+subtrackIndex); }}
                         title="Click to zoom-out this section"></span>
 
                         ${subtrackData.labelTooltip ? html`
                             <span class="labelTooltipContent" style="display:none;">${subtrackData.labelTooltip}</span>
                         ` : ``}
+                        ${help("subtrack-help", subtrackData.help)}
                     </div>
                     <div class="protvistaCol2 track-content" style=${styleMap(trackData.labelColor ? {borderBottom: '1px solid lightgrey'} : {})}>
                         <protvista-pdb-track class="pvSubtrack_${trackIndex}" length="${ctx.viewerData.length}" layout="${ctx.layoutHelper.getTrackLayout(subtrackData.overlapping)}" height="${ctx.layoutHelper.getTrackHeight(subtrackData.length, subtrackData.overlapping)}"></protvista-pdb-track>
@@ -40,6 +42,22 @@ function PDBePvTracksSection(ctx) {
         <!-- Subrack Rows End -->
     `)}`
         
+}
+
+function help(className, message) {
+    if (message) {
+        return html`
+            <button
+                class="${className}"
+                title="${message}"
+                @click=${stopEvent}
+            >?</button>
+        `
+    }
+}
+
+function stopEvent(ev) {
+    ev.stopPropagation();
 }
 
 export default PDBePvTracksSection;
