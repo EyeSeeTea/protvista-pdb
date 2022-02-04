@@ -35,7 +35,7 @@ function PDBePvTracksSection(ctx) {
                         ${help("subtrack-help", subtrackData.help)}
                     </div>
                     <div class="protvistaCol2 track-content" style=${styleMap(trackData.labelColor ? {borderBottom: '1px solid lightgrey'} : {})}>
-                        <protvista-pdb-track class="pvSubtrack_${trackIndex}" length="${ctx.viewerData.length}" layout="${ctx.layoutHelper.getTrackLayout(subtrackData.overlapping)}" height="${ctx.layoutHelper.getTrackHeight(subtrackData.length, subtrackData.overlapping)}"></protvista-pdb-track>
+                        <protvista-pdb-track class="pvSubtrack_${trackIndex}" length="${ctx.viewerData.length}" layout="${ctx.layoutHelper.getTrackLayout(subtrackData.overlapping)}" height="${ctx.layoutHelper.getTrackHeight(subtrackData.locations.length, subtrackData.overlapping)}"></protvista-pdb-track>
                     </div>
                 </div>`
             )}

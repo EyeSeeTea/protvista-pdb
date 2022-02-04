@@ -1,3 +1,5 @@
+import flatten from "lodash-es/flatten"
+
 class LayoutHelper {
 
     constructor(ctx) {
@@ -101,7 +103,7 @@ class LayoutHelper {
     }
 
     getTrackHeight(trackDataLength, isOverlapping){
-        let eleHt = (trackDataLength > 1) ? 60 : 44;
+        let eleHt = (trackDataLength > 1) ? 74 : 44
         return eleHt;
     }
 
@@ -170,15 +172,33 @@ class LayoutHelper {
               trackData = [trackModel];
               transform = 'transform:translate(0px,-5px)'
             }
-            trackEle.data = trackData;
 
             if(type == 'subtrack'){
+                const subtrackData = flatten(
+                    trackData
+                        .map((subtrack) => subtrack.locations
+                        .map((location, idx) => ({
+                            ...subtrack,
+                            accession: subtrack.accession + "-" + idx,
+                            locations: [location],
+                        })))
+                );
+                trackEle.data = subtrackData;
+
                 if(this.ctx.viewerData.tracks[mainTrackIndex].data.length > 4){
                     trackEle.parentNode.style.paddingRight = '0px';
                 }else{
                     trackEle.parentNode.style.paddingRight = scrollbarWidthVal+'px';
                 }
             }else{
+                const trackDataFlatten = trackData
+                    .map((track) => ({
+                        ...track,
+                        locations: [
+                            { fragments: flatten(track.locations.map(loc => loc.fragments)) }
+                        ]})
+                    )
+                trackEle.data = trackDataFlatten;
                 trackEle.parentNode.style.paddingRight = scrollbarWidthVal+'px';
             }
     
