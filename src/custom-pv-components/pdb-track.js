@@ -29,6 +29,7 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
       .style("line-height", 0)
       .append("svg")
       .style('width', '100%')
+      .style("overflow", "visible")
       .attr("height", this._height);
 
     this.highlighted = this.svg
@@ -221,7 +222,8 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
     tooltip.style.marginTop = 0;
     
     tooltip.title = `${d.feature.type} ${d.start}-${d.end}`;
-    if(d.start == d.end) tooltip.title = `${d.feature.type} residue ${d.start}`;
+    // Don't add 'residue' tag when start == end.
+    if(d.start == d.end) tooltip.title = `${d.feature.type} ${d.start}`;
     tooltip.closeable = closeable;
 
     // Passing the content as a property as it can contain HTML
@@ -281,6 +283,8 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
       const [start, end] = ns.split("-").map(s => parseInt(s));
       return { start, end };
     })
+
+    if (!this.highlightedIntervals) return;
 
     const selection = this.highlightedIntervals
       .selectAll("rect.hi")

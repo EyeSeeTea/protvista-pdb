@@ -35,7 +35,8 @@ const aaList = [
   "W",
   "P",
   "d",
-  "*"
+  "*",
+  "?",
 ];
 
 
@@ -92,7 +93,7 @@ class ProtvistaPdbVariation extends ProtvistaPdbTrack {
   _createFeatures() {
     this._variationPlot = new VariationPlot();
     // Group for the main chart
-    const mainChart = super.svg.select("g.sequence-features");
+    const mainChart = super.svg.select("g.sequence-features").attr("transform", "translate(0,10)")
 
     this._axisLeft = mainChart.append("g");
 
