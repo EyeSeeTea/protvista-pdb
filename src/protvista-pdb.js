@@ -24,6 +24,7 @@ class ProtvistaPDB extends HTMLElement {
             displaySequence: true,
             displayConservation: false,
             displayVariants: false,
+            expandFirstTrack: true,
             sequence: undefined,
             length: undefined,
             tracks: [],
