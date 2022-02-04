@@ -26,6 +26,14 @@ function PDBePvTracksSection(ctx) {
                         <span class="icon icon-functional hideLabelIcon" data-icon="x" @click=${e => {e.stopPropagation();ctx.layoutHelper.hideSubTrack(trackIndex, subtrackIndex)}} 
                         title="Hide this section"></span> 
                         <div class="pvSubtrackLabel_${trackIndex}_${subtrackIndex}" style="word-break: break-all;"></div>
+
+                        <span
+                            class="icon icon-functional ${getHighlightClass(ctx, trackIndex, subtrackIndex)}"
+                            data-icon="4"
+                            @click=${(ev) => highlightSubtrackFragments(ctx, trackIndex, subtrackIndex, subtrackData)}
+                            title="Click to highlight all fragments in subtrack"
+                        ></span>
+
                         <span class="icon icon-functional labelZoomIconRight pvZoomIcon_${trackIndex}_${subtrackIndex}" data-icon="1" @click="${e => { ctx.layoutHelper.zoomTrack({start:1, end: null, trackData: subtrackData}, trackIndex+'_'+subtrackIndex); }}
                         title="Click to zoom-out this section"></span>
 
@@ -42,7 +50,13 @@ function PDBePvTracksSection(ctx) {
         </div>
         <!-- Subrack Rows End -->
     `)}`
-        
+}
+
+function highlightSubtrackFragments(ctx, trackIndex, subtrackIndex, subtrackData) {
+    const buttonEl = ctx.querySelector(`.pvHighlight_${trackIndex}_${subtrackIndex}`);
+    const isEnabled = buttonEl ? !buttonEl.classList.contains("enabled") : true;
+    ctx.setSubtrackFragmentsSelection({ isEnabled, trackIndex, subtrackIndex, subtrackData })
+
 }
 
 function renderAddButton(ctx, trackData) {
@@ -56,6 +70,20 @@ function renderAddButton(ctx, trackData) {
             @click=${(ev) => onAddEvent(ctx, trackData, ev)}
         >+</button>
     `;
+}
+
+function getHighlightClass(ctx, trackIndex, subtrackIndex) {
+    const { highlightedSubtrack } = ctx;
+    const isHighlighted = highlightedSubtrack.trackIndex === trackIndex &&
+        highlightedSubtrack.subtrackIndex === subtrackIndex;
+
+    const classes = [
+        "labelHighlightRight",
+        `pvHighlight_${trackIndex}_${subtrackIndex}`,
+        isHighlighted ? "enabled" : "",
+    ]
+
+    return classes.filter(Boolean).join(" ");
 }
 
 function onAddEvent(ctx, trackData, ev) {
