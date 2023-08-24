@@ -2,21 +2,21 @@ const { html } = require("lit-html")
 
 function PDBePvNavSection(ctx) {
     return html `<div class="protvistaRow">
-                    
+
         <!-- Top Menu Toolbar -->
         <div class="protvistaCol1 protvistaToolbar" style="position:relative">
             <span class="protvistaToolbarIcon" @click=${e => ctx.layoutHelper.resetView()} title="Reset view">
-                <i class="icon icon-functional" data-icon="R"></i>
+                <i class="icon icon-common icon-history"></i>
             </span>
 
             <!-- View / highlight menu -->
-            <span class="protvistaToolbarIcon" title="View / highlight region" @click=${e => ctx.layoutHelper.openRangeMenu()}>
-                <i class="icon icon-generic" data-icon="["></i>
+            <span class="protvistaToolbarIcon" title="Highlight / View region" @click=${e => ctx.layoutHelper.openRangeMenu()}>
+                <i class="icon icon-common icon-lightbulb"></i>
             </span>
             <div class="rangeMenu viewMenuBox" style="display:none">
                 <div class="protvistaRangeMenuTitle">
-                    <div>View region</div>
-                    <span class="icon icon-functional protvistaMenuClose" data-icon="x" title="close" @click=${e => {e.stopPropagation();ctx.layoutHelper.openRangeMenu()}}></span>
+                    <div>Highlight / View region</div>
+                    <span class="icon icon-functional protvistaMenuClose" data-icon="x" title="Close" @click=${e => {e.stopPropagation();ctx.layoutHelper.openRangeMenu()}}></span>
                 </div>
                 <div class="protvistaForm rangeForm" style="width:170px;">
                     <div style="float:left;width:48%;">
@@ -28,7 +28,7 @@ function PDBePvNavSection(ctx) {
                         <input type="number" class="pvRangeMenuEnd" value="0" style="display:inline-block;margin:0;" min="1" max="${ctx.viewerData.length}" step="1" /> <br><br>
                     </div>
                     <div style="margin:0 0 10px 0;clear:both;">
-                        <input type="checkbox" class="pvRangeMenuHighlight" /> highlight-only
+                        <input type="checkbox" class="pvRangeMenuHighlight" /> Highlight-only
                     </div>                                
                     <button class="button tiny" style="margin:0; letter-spacing: 1px;" @click=${e => ctx.layoutHelper.pvRangeMenuSubmit()}>Submit</button>
                 </div>
@@ -37,7 +37,7 @@ function PDBePvNavSection(ctx) {
 
             <!-- Track categories settings menu -->
             <span class="protvistaToolbarIcon" title="Hide sections" @click=${e => ctx.layoutHelper.openCategorySettingsMenu()}>
-                <i class="icon icon-functional" data-icon="M"></i>
+                <i class="icon icon-common icon-eye-slash"></i>
             </span>
             <div class="settingsMenu viewMenuBox" style="display:none">
                 <div class="protvistaRangeMenuTitle">

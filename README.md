@@ -6,6 +6,7 @@ PDBe implementation of [ProtVista (Nightingale)](https://github.com/ebi-webcompo
 ## Building & Running locally
 ```JS
 npm install
+rm -rf node_modules/.cache
 npm run build
 npm run serve
 ```
