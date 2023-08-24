@@ -436,14 +436,14 @@ class LayoutHelper {
         });
         let firstTrackSection = this.ctx.querySelector(`.pvTracks_0`);
         firstTrackSection.style.display = 'table';
-        if(!firstTrackSection.classList.contains('expanded')) firstTrackSection.classList.add('expanded');
-        firstTrackSection.querySelector(`.pvTrack`).style.display = 'none';
+        // if(!firstTrackSection.classList.contains('expanded')) firstTrackSection.classList.add('expanded');
+        // firstTrackSection.querySelector(`.pvTrack`).style.display = 'none';
         this.ctx.querySelectorAll(`.protvistaRowGroup`).forEach((trackSubSection, subSectionIndex) => {
             trackSubSection.style.display = 'none';
             //Reset hidden subtracks
             if(typeof this.ctx.hiddenSubtracks[subSectionIndex] != 'undefined') this.resetSection(subSectionIndex);
         });
-        this.ctx.querySelector(`.pvSubtracks_0`).style.display = 'block';
+        // this.ctx.querySelector(`.pvSubtracks_0`).style.display = 'block';
         this.ctx.querySelector(`.pvResetSection_0`).style.display = 'none';
 
         let variantTrackEle = this.ctx.querySelector(".pvVariantPlotRow");

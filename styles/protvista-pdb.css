@@ -261,23 +261,22 @@
 }
 
 .protvistaToolbarIcon{
-    display: inline-block;
+    display: inline-flex;
     border: 1px solid #828181;
     background-color: #828181;
     border-radius: 50%;
     margin-right: 10px;
     cursor: pointer;
-    text-align: center;
-    text-align: center;
+    align-items: center;
+    justify-content: center;
     width: 30px;
     height: 30px;
-    line-height: 28px;
+    line-height: 30px;
 }
 
 .protvistaToolbar i{
     color: #fff;
     cursor: pointer;
-    margin:2px;
 }
 
 .protvistaRangeMenuTitle{
