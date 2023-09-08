@@ -5,12 +5,12 @@ function PDBePvTracksSection(ctx) {
     return html `${ctx.viewerData.tracks.map((trackData, trackIndex) => html`
         <div class="protvistaRow pvTrackRow pvTracks_${trackIndex}">
             <div class="protvistaCol1 category-label" data-label-index="${trackIndex}" @click=${e => ctx.layoutHelper.showSubtracks(trackIndex)} 
-            style=${styleMap(trackData.labelColor ? {backgroundColor: trackData.labelColor, borderBottom: '1px solid lightgrey'} : {})}>
+            style=${styleMap(trackData.labelColor ? {backgroundColor: trackData.labelColor, borderBottom: '1px solid lightgrey'} : {})}
+            title="${trackData.label}: ${trackData.help}">
                 <span class="pvTrackLabel_${trackIndex}"></span>
                 <span class="protvistaResetSectionIcon pvResetSection_${trackIndex}" @click=${e => {e.stopPropagation();ctx.layoutHelper.resetSection(trackIndex)}} title="Reset section">
-                <i class="icon icon-functional" data-icon="R"></i>
+                    <i class="icon icon-functional" data-icon="R"></i>
                 </span>
-                ${help("track-help", trackData.help)}
                 ${renderAddButton(ctx, trackData)}
             </div>
             <div class="protvistaCol2 aggregate-track-content" style=${styleMap(trackData.labelColor ? {borderBottom: '1px solid lightgrey'} : {})}>
