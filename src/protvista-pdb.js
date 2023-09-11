@@ -171,6 +171,11 @@ class ProtvistaPDB extends HTMLElement {
 
         document.querySelectorAll(".labelHighlightRight").forEach(el => {
             el.classList.remove("enabled");
+            const icon=el.children[0];
+            const text=el.children[1];
+            icon.classList.remove("icon-undo-alt");
+            icon.classList.add("icon-star");
+            text.innerText="Highlight fragments";
         });
 
         let fragments;
@@ -181,6 +186,11 @@ class ProtvistaPDB extends HTMLElement {
             const locFragments = flatten(subtrackData.locations.map(location => location.fragments));
 
             buttonEl.classList.add("enabled");
+            const icon=buttonEl.children[0];
+            const text=buttonEl.children[1];
+            icon.classList.remove("icon-star");
+            icon.classList.add("icon-undo-alt");
+            text.innerText="Undo highlight";
             fragments = locFragments.map(fragment => ({ ...fragment, feature: subtrackData }));
         } else {
             fragments = [];

@@ -11,7 +11,7 @@ function PDBePvNavSection(ctx) {
 
             <!-- View / highlight menu -->
             <span class="protvistaToolbarIcon" title="Highlight / View region" @click=${e => ctx.layoutHelper.openRangeMenu()}>
-                <i class="icon icon-common icon-lightbulb"></i>
+                <i class="icon icon-common icon-star"></i>
             </span>
             <div class="rangeMenu viewMenuBox" style="display:none">
                 <div class="protvistaRangeMenuTitle">

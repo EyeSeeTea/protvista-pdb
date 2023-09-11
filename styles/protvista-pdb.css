@@ -111,7 +111,6 @@
     border-bottom: 1px solid #fff;
     background-color: #b2f5ff;
     cursor: pointer;
-    position: relative;
 }
 
 .category-label:hover {
@@ -150,9 +149,67 @@
 
 .track-label {
     background-color: #d9faff;
-    padding: 0.5em 1.2em 0.5em 1.8em;
+    padding: 0 1em;
     cursor:pointer;
-    position: relative;
+    justify-content: space-between;
+}
+
+.track-label div[class^=pvSubtrackLabel] {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.more-options:hover {background-color: #e1e1e1;}
+.more-options:active {background-color: #cfcfcf;}
+
+.more-options {
+    all: unset;
+    background-color: #ffffff;
+    border: 1px solid #d6d6d6;
+    border-radius: .5em;
+    color: #6d6d6d;
+    padding: .125em .5em;
+    margin-left: 1em;
+}
+
+.moreOptionsMenu.viewMenuBox {
+    position: fixed;
+    left: 0;
+    top: 0;
+    padding: 0.25rem 0;
+    box-sizing: border-box;
+    min-width: 200px;
+}
+
+.infoTooltip.viewMenuBox {
+    display: none;
+    position: fixed;
+    left: 0;
+    top: 0;
+    padding: 1.5rem;
+    box-sizing: border-box;
+    min-width: 200px;
+}
+
+.label-tooltip {color:red}
+
+.more-options-action:hover {background-color: #e1e1e1;}
+.more-options-action:active {background-color: #cfcfcf;}
+
+.more-options-action {
+    all: unset;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding-right: 1rem;
+    box-sizing: border-box;
+    color: #242424;
+}
+
+.more-options-action .icon {
+    display: inline-block;
+    padding: .5rem 1rem;
 }
 
 .category-label.pdbIconsLabel, .track-label.pdbIconsLabel {
@@ -230,31 +287,6 @@
 
 .protvistaRowGroup.noPaddingRight > .protvistaRow > .protvistaCol2 {
     padding-right: 0 !important;
-}
-
-.labelZoomIcon{
-    position: absolute;
-    left: 5px;
-    cursor: zoom-in;
-    color: #848a86;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 12px;
-}
-
-.labelZoomIcon.active{
-    cursor: zoom-out!important;
-    color: #009e38!important;
-}
-
-.hideLabelIcon{
-    position: absolute;
-    right: 5px;
-    cursor: pointer;
-    color: #848a86;
-    top: 10%;
-    transform: translateY(-10%);
-    font-size: 10px;
 }
 
 .protvistaResetSectionIcon{

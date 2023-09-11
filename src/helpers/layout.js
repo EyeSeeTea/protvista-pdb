@@ -5,6 +5,7 @@ class LayoutHelper {
     constructor(ctx) {
         this.ctx = ctx;
         this.handlers = [];
+        this.ctx.addEventListener('mouseleave',()=>{this.hideMoreOptions();});
     }
 
     postProcessLayout() {
@@ -69,7 +70,7 @@ class LayoutHelper {
 
     addDynamicTrackSection(resultData, rowClass, aggregatedTrackClass, trackClass, sectionOptions, borderBottom) {
         if(resultData && Object.keys(resultData).length > 0){
-            this.ctx.querySelector(rowClass).style.display = 'table';
+            this.ctx.querySelector(rowClass).style.display = 'flex';
             let trackSectionEle = this.ctx.querySelectorAll(aggregatedTrackClass)[0];
             if(trackSectionEle){ 
                 trackSectionEle.style.paddingRight = this.ctx.scrollbarWidth+'px';
@@ -127,7 +128,7 @@ class LayoutHelper {
 
     hideSubtracks(trackIndex){
         this.ctx.querySelectorAll('.pvSubtracks_'+trackIndex)[0].style.display = 'none';
-        this.ctx.querySelectorAll('.pvTracks_'+trackIndex)[0].style.display = 'table';
+        this.ctx.querySelectorAll('.pvTracks_'+trackIndex)[0].style.display = 'flex';
     }
 
     addHideOptions(optionClass, tIndex, label){
@@ -136,7 +137,7 @@ class LayoutHelper {
             <td style="width:10%;vertical-align:top;"><input type="checkbox" class="pvSectionChkBox" name="cb_${tIndex}" style="margin:0" /></td>
             <td style="padding-bottom:5px;">${label}</td>
         </tr>`;
-        optionEle.style.display = "table-row";
+        optionEle.style.display = "flex";
     }
 
     handleExtEvents(e){
@@ -248,7 +249,7 @@ class LayoutHelper {
     resetSection(trackIndex){
         this.ctx.querySelector(`.pvResetSection_${trackIndex}`).style.display = 'none';
         this.ctx.hiddenSubtracks[trackIndex].forEach((subtrackIndex) => {
-            this.ctx.querySelector(`.pvSubtrackRow_${trackIndex}_${subtrackIndex}`).style.display = 'table';
+            this.ctx.querySelector(`.pvSubtrackRow_${trackIndex}_${subtrackIndex}`).style.display = 'flex';
         });
         delete this.ctx.hiddenSubtracks[trackIndex];
     }
@@ -280,7 +281,7 @@ class LayoutHelper {
         let totalTracks = this.ctx.viewerData.tracks.length;
         if(trackIndex < totalTracks){
             let pvTracksEle = this.ctx.querySelector(`.pvTracks_${trackIndex}`);
-            pvTracksEle.style.display = 'table';
+            pvTracksEle.style.display = 'flex';
 
             if(pvTracksEle.classList.contains('expanded')){
                 let pvSbTrkEle = this.ctx.querySelector(`.pvSubtracks_${trackIndex}`);
@@ -293,7 +294,7 @@ class LayoutHelper {
 
             if(trackIndex == totalTracks){
                 let consHistoSectionEle = this.ctx.querySelector('.pvConsHistoRow');
-                if(consHistoSectionEle) consHistoSectionEle.style.display = 'table';
+                if(consHistoSectionEle) consHistoSectionEle.style.display = 'flex';
 
                 if(consHistoSectionEle.classList.contains('expanded')){
                     let pvConservationPlotSectionEle = this.ctx.querySelector('.pvConservationPlotRow');
@@ -301,7 +302,7 @@ class LayoutHelper {
                 }
             }else{
                 let variantGraphSectionEle = this.ctx.querySelector('.pvVariantGraphRow');
-                if(variantGraphSectionEle) variantGraphSectionEle.style.display = 'table';
+                if(variantGraphSectionEle) variantGraphSectionEle.style.display = 'flex';
                 if(variantGraphSectionEle.classList.contains('expanded')){
                     let pvVariantPlotSectionEle = this.ctx.querySelector('.pvVariantPlotRow');
                     if(pvVariantPlotSectionEle) pvVariantPlotSectionEle.style.display = 'block';
@@ -396,13 +397,22 @@ class LayoutHelper {
         if(this.ctx.zoomedTrack != ''){
             let prevZoomIconEle = this.ctx.querySelector('.pvZoomIcon_'+this.ctx.zoomedTrack);
             prevZoomIconEle.classList.remove('active');
+            const icon=prevZoomIconEle.children[0];
+            const text=prevZoomIconEle.children[1];
+            icon.classList.remove("icon-search-minus");
+            icon.classList.add("icon-search-plus");
+            text.innerText="Zoom in";
         }
         
         if(this.ctx.zoomedTrack != currentZoomTrack){
           
           let zoomIconEle = this.ctx.querySelector('.pvZoomIcon_'+currentZoomTrack);
           zoomIconEle.classList.add('active');
-
+          const icon=zoomIconEle.children[0];
+          const text=zoomIconEle.children[1];
+          icon.classList.add("icon-search-minus");
+          icon.classList.remove("icon-search-plus");
+          text.innerText="Zoom out";
           this.ctx.zoomedTrack = currentZoomTrack;
           this.resetZoom(data);
         }else{
@@ -418,6 +428,8 @@ class LayoutHelper {
         //Close open menus
         this.ctx.querySelector('.settingsMenu').style.display = 'none';
         this.ctx.querySelector('.rangeMenu').style.display = 'none';
+        this.hideMoreOptions();
+        this.hideInfoTooltips();
 
         //Reset zoom
         if(this.ctx.zoomedTrack != ''){
@@ -435,7 +447,7 @@ class LayoutHelper {
             if(expTrackEle) expTrackEle.style.display = 'block';
         });
         let firstTrackSection = this.ctx.querySelector(`.pvTracks_0`);
-        firstTrackSection.style.display = 'table';
+        firstTrackSection.style.display = 'flex';
         // if(!firstTrackSection.classList.contains('expanded')) firstTrackSection.classList.add('expanded');
         // firstTrackSection.querySelector(`.pvTrack`).style.display = 'none';
         this.ctx.querySelectorAll(`.protvistaRowGroup`).forEach((trackSubSection, subSectionIndex) => {
@@ -458,7 +470,7 @@ class LayoutHelper {
 
                 if(trackIndex > 0 && trackIndex < totalTracks){
                     let trackSection = this.ctx.querySelector(`.pvTracks_${trackIndex}`);
-                    trackSection.style.display = 'table';
+                    trackSection.style.display = 'flex';
                     if(trackSection.classList.contains('expanded')) trackSection.classList.remove('expanded');
                     trackSection.querySelector(`.pvTrack`).style.display = 'block';
                 }else if(trackIndex >= totalTracks){
@@ -466,7 +478,7 @@ class LayoutHelper {
                     if(trackIndex == totalTracks){
 
                         let consHistoSectionEle = this.ctx.querySelector('.pvConsHistoRow');
-                        if(consHistoSectionEle) consHistoSectionEle.style.display = 'table';
+                        if(consHistoSectionEle) consHistoSectionEle.style.display = 'flex';
         
                         if(consHistoSectionEle.classList.contains('expanded')) consHistoSectionEle.classList.remove('expanded');
                         let pvConservationPlotSectionEle = this.ctx.querySelector('.pvConservationPlotRow');
@@ -476,7 +488,7 @@ class LayoutHelper {
                     }else{
         
                         let variantGraphSectionEle = this.ctx.querySelector('.pvVariantGraphRow');
-                        if(variantGraphSectionEle) variantGraphSectionEle.style.display = 'table';
+                        if(variantGraphSectionEle) variantGraphSectionEle.style.display = 'flex';
         
                         if(variantGraphSectionEle.classList.contains('expanded')) variantGraphSectionEle.classList.remove('expanded');
                         let pvVariantPlotSectionEle = this.ctx.querySelector('.pvVariantPlotRow');
@@ -500,6 +512,8 @@ class LayoutHelper {
 
         //Close other open menus
         this.ctx.querySelector('.settingsMenu').style.display = 'none';
+        this.hideMoreOptions();
+        this.hideInfoTooltips();
         
         let menuBox = this.ctx.querySelector(`.rangeMenu`);
         if(menuBox.style.display == 'none'){
@@ -527,10 +541,56 @@ class LayoutHelper {
         }
     }
 
+    openMoreOptions(trackIndex, subtrackIndex){
+        //Close other open menus
+        this.ctx.querySelector('.settingsMenu').style.display = 'none';
+        this.ctx.querySelector('.rangeMenu').style.display = 'none';
+        this.hideInfoTooltips();
+
+        const menuBox = this.ctx.querySelector(`.moreOptionsMenu_${trackIndex}_${subtrackIndex}`);
+        if(menuBox.style.display == 'none') {
+            this.hideMoreOptions();
+            const moreOptions = menuBox.previousElementSibling.getBoundingClientRect();
+            menuBox.style.left = (moreOptions.x + moreOptions.width + 16) +'px';
+            menuBox.style.top = (moreOptions.y + -16) +'px';
+            menuBox.style.display = 'block';
+        } else {
+            menuBox.style.display = 'none';
+        }
+    }
+
+    showInfoTooltip(trackIndex, subtrackIndex){
+        //Close other open menus
+        this.ctx.querySelector('.settingsMenu').style.display = 'none';
+        this.ctx.querySelector('.rangeMenu').style.display = 'none';
+        this.hideInfoTooltips();
+        
+        const tooltipBox = this.ctx.querySelector(`.infoTooltip_${trackIndex}_${subtrackIndex}`);
+        const actionButton = this.ctx.querySelector(`.infoAction_${trackIndex}_${subtrackIndex}`).getBoundingClientRect();
+        tooltipBox.style.left = (actionButton.x + actionButton.width + 16) +'px';
+        tooltipBox.style.top = (actionButton.y + -16) +'px';
+        tooltipBox.style.display = 'block';
+        this.hideMoreOptions();
+    }
+    
+    hideMoreOptions(){
+        //Hide all more options menu
+        if(this.ctx)
+            [...this.ctx.querySelectorAll('.moreOptionsMenu')].forEach(m=>m.style.display = 'none');
+    }
+
+    hideInfoTooltips(){
+        //Hide all info tooltips
+        if(this.ctx)
+            [...this.ctx.querySelectorAll('.infoTooltip')].forEach(m=>m.style.display = 'none');
+    }
+
     openCategorySettingsMenu(){
 
         //Close other open menus
         this.ctx.querySelector('.rangeMenu').style.display = 'none';
+        this.hideMoreOptions();
+        this.hideInfoTooltips();
 
         let menuBox = this.ctx.querySelector(`.settingsMenu`);
         if(menuBox.style.display == 'none'){
@@ -588,31 +648,6 @@ class LayoutHelper {
         });
 
         this.openCategorySettingsMenu();
-    }
-
-    showLabelTooltip(e){
-        let tooltipContentEle = e.currentTarget.lastElementChild;
-        if(!tooltipContentEle || tooltipContentEle.className != "labelTooltipContent") return;
-
-        let toolTipText = tooltipContentEle.innerText;
-
-        let labelToolTipEle = this.ctx.querySelector(".labelTooltipBox");
-        
-        labelToolTipEle.innerHTML = toolTipText;
-
-        let labelCoordinates = e.currentTarget.getBoundingClientRect();
-
-        labelToolTipEle.style.left = (labelCoordinates.x + labelCoordinates.width + 5) +'px';
-
-       
-        labelToolTipEle.style.top = (labelCoordinates.y + 10) +'px';
-
-        labelToolTipEle.style.display = 'block';
-
-    }
-
-    hideLabelTooltip(){
-        this.ctx.querySelector(".labelTooltipBox").style.display = 'none';
     }
 
     showVariantPlot(){
