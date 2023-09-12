@@ -516,8 +516,11 @@ class LayoutHelper {
         this.hideInfoTooltips();
         
         let menuBox = this.ctx.querySelector(`.rangeMenu`);
+        const menuAction = menuBox.previousElementSibling.getBoundingClientRect();
         if(menuBox.style.display == 'none'){
-
+            menuBox.style.left = (menuAction.x + menuAction.width + 16) +'px';
+            menuBox.style.top = (menuAction.y + 16) +'px';
+            menuBox.style.display = 'block';
             let startEle = this.ctx.querySelector('.pvRangeMenuStart');
             let endEle = this.ctx.querySelector('.pvRangeMenuEnd');
             
@@ -593,7 +596,11 @@ class LayoutHelper {
         this.hideInfoTooltips();
 
         let menuBox = this.ctx.querySelector(`.settingsMenu`);
+        const menuAction = menuBox.previousElementSibling.getBoundingClientRect();
         if(menuBox.style.display == 'none'){
+            menuBox.style.left = (menuAction.x + menuAction.width + 16) +'px';
+            menuBox.style.top = (menuAction.y + 16) +'px';
+            menuBox.style.display = 'block';
             
             menuBox.querySelectorAll('.pvSectionChkBox').forEach((chkBox, chkBoxIndex) => {
                 if(this.ctx.hiddenSections.indexOf(chkBoxIndex) > -1){

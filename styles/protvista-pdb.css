@@ -691,11 +691,11 @@ ul.filter-list a {
 
 .viewMenuBox {
     display: block;
-    position: absolute;
+    position: fixed;
     z-index: 1;
     background: #fff;
-    left: 70%;
-    top: 47px;
+    left: 0;
+    top: 0;
     min-width: 150px;
     max-width: 280px;
     overflow: auto;
