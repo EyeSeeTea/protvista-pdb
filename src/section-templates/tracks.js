@@ -46,7 +46,7 @@ function PDBePvTracksSection(ctx) {
                         <!--More options menu end-->
                         <!--Info tooltip-->
                             <div class="infoTooltip viewMenuBox infoTooltip_${trackIndex}_${subtrackIndex}">
-                                <div class="info-header"><span class="title">${subtrackData.label}</span><span class="icon icon-common icon-close" @click=${e => ctx.layoutHelper.hideInfoTooltips()}></span></div>
+                                <div class="info-header"><span class="title">${subtrackData.label}</span><span class="icon icon-common icon-close" title="Close" @click=${e => ctx.layoutHelper.hideInfoTooltips()}></span></div>
                                 ${subtrackData.help}
                             </div>
                         <!--Info tooltip end-->
