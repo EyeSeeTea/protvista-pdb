@@ -34,10 +34,10 @@ function PDBePvTracksSection(ctx) {
                                 <span class="icon icon-common icon-search-plus"></span>
                                 <span>Zoom in</span>
                             </button>
-                            <button type="button" class="more-options-action infoAction_${trackIndex}_${subtrackIndex}" @click=${e => ctx.layoutHelper.showInfoTooltip(trackIndex, subtrackIndex)}>
+                            ${subtrackData.help ? html`<button type="button" class="more-options-action infoAction_${trackIndex}_${subtrackIndex}" @click=${e => ctx.layoutHelper.showInfoTooltip(trackIndex, subtrackIndex)}>
                                 <span class="icon icon-common icon-info"></span>
                                 More info
-                            </button>
+                            </button>` : ""}
                             <button type="button" class="more-options-action" @click=${e => {e.stopPropagation();ctx.layoutHelper.hideSubTrack(trackIndex, subtrackIndex)}}>
                                 <span class="icon icon-common icon-eye-slash"></span>
                                 Hide
@@ -46,8 +46,8 @@ function PDBePvTracksSection(ctx) {
                         <!--More options menu end-->
                         <!--Info tooltip-->
                             <div class="infoTooltip viewMenuBox infoTooltip_${trackIndex}_${subtrackIndex}">
+                                <div class="info-header"><span class="title">${subtrackData.label}</span><span class="icon icon-common icon-close" @click=${e => ctx.layoutHelper.hideInfoTooltips()}></span></div>
                                 ${subtrackData.help}
-                                <span class="label-tooltip">${subtrackData.labelTooltip}</span>
                             </div>
                         <!--Info tooltip end-->
                     </div>
