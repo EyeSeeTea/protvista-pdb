@@ -567,8 +567,8 @@ class LayoutHelper {
         
         const tooltipBox = this.ctx.querySelector(`.infoTooltip_${trackIndex}_${subtrackIndex}`);
         const actionButton = this.ctx.querySelector(`.infoAction_${trackIndex}_${subtrackIndex}`).getBoundingClientRect();
-        tooltipBox.style.left = (actionButton.x + actionButton.width + 16) +'px';
-        tooltipBox.style.top = (actionButton.y + -16) +'px';
+        tooltipBox.style.left = (actionButton.x + 24) +'px';
+        tooltipBox.style.top = (actionButton.y + -32) +'px';
         tooltipBox.style.display = 'block';
         this.hideMoreOptions();
     }
