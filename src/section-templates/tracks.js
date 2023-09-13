@@ -8,9 +8,7 @@ function PDBePvTracksSection(ctx) {
             style=${styleMap(trackData.labelColor ? {backgroundColor: trackData.labelColor, borderBottom: '1px solid lightgrey'} : {})}
             title="${trackData.label}: ${trackData.help}">
                 <span class="pvTrackLabel_${trackIndex}"></span>
-                <span class="protvistaResetSectionIcon pvResetSection_${trackIndex}" @click=${e => {e.stopPropagation();ctx.layoutHelper.resetSection(trackIndex)}} title="Reset section">
-                    <i class="icon icon-functional" data-icon="R"></i>
-                </span>
+                <button type="button" class="protvistaResetSectionIcon pvResetSection_${trackIndex}" title="Reset section" @click=${e => {e.stopPropagation();ctx.layoutHelper.resetSection(trackIndex)}}><i class="icon icon-common icon-redo-alt"></i></button>
                 ${renderAddButton(ctx, trackData)}
             </div>
             <div class="protvistaCol2 aggregate-track-content" style=${styleMap(trackData.labelColor ? {borderBottom: '1px solid lightgrey'} : {})}>

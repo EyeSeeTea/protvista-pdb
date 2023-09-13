@@ -160,10 +160,11 @@
     white-space: nowrap;
 }
 
-.more-options:hover {background-color: #e1e1e1;}
-.more-options:active {background-color: #cfcfcf;}
+.category-label span[class^=pvTrackLabel] {
+    flex-grow: 1;
+}
 
-.more-options {
+.protvistaResetSectionIcon, .more-options {
     all: unset;
     background-color: #ffffff;
     border: 1px solid #d6d6d6;
@@ -171,6 +172,12 @@
     color: #6d6d6d;
     padding: .125em .5em;
     margin-left: 1em;
+}
+
+.protvistaResetSectionIcon:hover, .more-options:hover {background-color: #e1e1e1;}
+.protvistaResetSectionIcon:active, .more-options:active {background-color: #cfcfcf;}
+.protvistaResetSectionIcon {
+    display: none;
 }
 
 .moreOptionsMenu.viewMenuBox {
@@ -302,27 +309,6 @@
 
 .protvistaRowGroup.noPaddingRight > .protvistaRow > .protvistaCol2 {
     padding-right: 0 !important;
-}
-
-.protvistaResetSectionIcon{
-    position: absolute;
-    border: 1px solid #828181;
-    background-color: #828181;
-    border-radius: 50%;
-    cursor: pointer;
-    text-align: center;
-    text-align: center;
-    width: 20px;
-    height: 20px;
-    line-height: 19px;
-    right: 10px;
-    display: none;
-}
-
-.protvistaResetSectionIcon i{
-    color: #fff;
-    cursor: pointer;
-    font-size:80%;
 }
 
 .protvistaToolbar{
