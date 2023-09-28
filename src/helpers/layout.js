@@ -5,7 +5,7 @@ class LayoutHelper {
     constructor(ctx) {
         this.ctx = ctx;
         this.handlers = [];
-        this.ctx.addEventListener('mouseleave',()=>{this.hideMoreOptions();});
+        this.ctx.addEventListener('mouseleave', () => { this.hideMoreOptions(); });
     }
 
     postProcessLayout() {
@@ -392,35 +392,30 @@ class LayoutHelper {
         
     }
 
-    zoomTrack(data, currentZoomTrack){
+    zoomTrack(data, currentZoomTrack) {
+        const changeIcon = (el, zoom) => {
+            if (zoom) el.classList.add('active');
+            else el.classList.remove('active');
+            const icon = el.children[0];
+            const text = el.children[1];
+            if (icon && text) {
+                icon.classList.add(zoom ? "icon-search-minus" : "icon-search-plus");
+                icon.classList.remove(zoom ? "icon-search-plus" : "icon-search-minus");
+                text.innerText = zoom ? "Zoom out" : "Zoom in";
+            }
+        }
 
-        if(this.ctx.zoomedTrack != ''){
-            let prevZoomIconEle = this.ctx.querySelector('.pvZoomIcon_'+this.ctx.zoomedTrack);
-            prevZoomIconEle.classList.remove('active');
-            const icon=prevZoomIconEle.children[0];
-            const text=prevZoomIconEle.children[1];
-            icon.classList.remove("icon-search-minus");
-            icon.classList.add("icon-search-plus");
-            text.innerText="Zoom in";
+        if (this.ctx.zoomedTrack != '')
+            changeIcon(this.ctx.querySelector('.pvZoomIcon_' + this.ctx.zoomedTrack), false);
+
+        if (this.ctx.zoomedTrack != currentZoomTrack) {
+            changeIcon(this.ctx.querySelector('.pvZoomIcon_' + currentZoomTrack), true);
+            this.ctx.zoomedTrack = currentZoomTrack;
+            this.resetZoom(data);
+        } else {
+            this.ctx.zoomedTrack = '';
+            this.resetZoom({ start: 1, end: null });
         }
-        
-        if(this.ctx.zoomedTrack != currentZoomTrack){
-          
-          let zoomIconEle = this.ctx.querySelector('.pvZoomIcon_'+currentZoomTrack);
-          zoomIconEle.classList.add('active');
-          const icon=zoomIconEle.children[0];
-          const text=zoomIconEle.children[1];
-          icon.classList.add("icon-search-minus");
-          icon.classList.remove("icon-search-plus");
-          text.innerText="Zoom out";
-          this.ctx.zoomedTrack = currentZoomTrack;
-          this.resetZoom(data);
-        }else{
-          
-          this.ctx.zoomedTrack = '';
-          this.resetZoom({start:1, end: null});
-        }
-          
     }
 
     resetView(){
@@ -508,78 +503,74 @@ class LayoutHelper {
         
     }
 
-    openRangeMenu(){
+    openTooltip(className, top, callback) {
+        const menu = this.ctx.querySelector(className);
+        if (menu.style.display == 'none') {
+            const actionSource = menu.previousElementSibling.getBoundingClientRect();
+            menu.style.left = (actionSource.x + actionSource.width + 16) + 'px';
+            menu.style.top = (actionSource.y + top) + 'px';
+            menu.style.display = 'block';
+            if (callback) callback(menu, this.ctx);
+        } else {
+            menu.style.display = 'none';
+        }
+    }
 
+    openRangeMenu() {
         //Close other open menus
         this.ctx.querySelector('.settingsMenu').style.display = 'none';
         this.hideMoreOptions();
         this.hideInfoTooltips();
-        
-        let menuBox = this.ctx.querySelector(`.rangeMenu`);
-        const menuAction = menuBox.previousElementSibling.getBoundingClientRect();
-        if(menuBox.style.display == 'none'){
-            menuBox.style.left = (menuAction.x + menuAction.width + 16) +'px';
-            menuBox.style.top = (menuAction.y + 16) +'px';
-            menuBox.style.display = 'block';
-            let startEle = this.ctx.querySelector('.pvRangeMenuStart');
-            let endEle = this.ctx.querySelector('.pvRangeMenuEnd');
-            
-            if(startEle.value == 0 || endEle.value == 0){
-                let currentStartVal = 1;
-                let currentEndVal = this.ctx.viewerData.length;
 
-                let navEle = this.ctx.querySelectorAll('.pvTrack')[0];
-                if (navEle){
+        function rangeMenu(_menu, ctx) {
+            let startEle = ctx.querySelector('.pvRangeMenuStart');
+            let endEle = ctx.querySelector('.pvRangeMenuEnd');
+
+            if (startEle.value == 0 || endEle.value == 0) {
+                let currentStartVal = 1;
+                let currentEndVal = ctx.viewerData.length;
+
+                let navEle = ctx.querySelectorAll('.pvTrack')[0];
+                if (navEle) {
                     currentStartVal = navEle.getAttribute('displaystart');
                     currentEndVal = navEle.getAttribute('displayend');
                 }
-                
+
                 startEle.value = Math.round(currentStartVal);
                 endEle.value = Math.round(currentEndVal);
             }
-
-            menuBox.style.display = 'block';
-        }else{
-            menuBox.style.display = 'none';
         }
+
+        this.openTooltip(".rangeMenu", 16, rangeMenu);
     }
 
-    openMoreOptions(trackIndex, subtrackIndex){
+    openMoreOptions(trackIndex, subtrackIndex) {
+        //Close other open menus
+        this.ctx.querySelector('.settingsMenu').style.display = 'none';
+        this.ctx.querySelector('.rangeMenu').style.display = 'none';
+        this.hideInfoTooltips();
+        this.hideMoreOptions();
+        this.openTooltip(`.moreOptionsMenu_${trackIndex}_${subtrackIndex}`, -16);
+    }
+
+    showInfoTooltip(trackIndex, subtrackIndex) {
         //Close other open menus
         this.ctx.querySelector('.settingsMenu').style.display = 'none';
         this.ctx.querySelector('.rangeMenu').style.display = 'none';
         this.hideInfoTooltips();
 
-        const menuBox = this.ctx.querySelector(`.moreOptionsMenu_${trackIndex}_${subtrackIndex}`);
-        if(menuBox.style.display == 'none') {
-            this.hideMoreOptions();
-            const moreOptions = menuBox.previousElementSibling.getBoundingClientRect();
-            menuBox.style.left = (moreOptions.x + moreOptions.width + 16) +'px';
-            menuBox.style.top = (moreOptions.y + -16) +'px';
-            menuBox.style.display = 'block';
-        } else {
-            menuBox.style.display = 'none';
-        }
-    }
-
-    showInfoTooltip(trackIndex, subtrackIndex){
-        //Close other open menus
-        this.ctx.querySelector('.settingsMenu').style.display = 'none';
-        this.ctx.querySelector('.rangeMenu').style.display = 'none';
-        this.hideInfoTooltips();
-        
         const tooltipBox = this.ctx.querySelector(`.infoTooltip_${trackIndex}_${subtrackIndex}`);
         const actionButton = this.ctx.querySelector(`.infoAction_${trackIndex}_${subtrackIndex}`).getBoundingClientRect();
-        tooltipBox.style.left = (actionButton.x + 24) +'px';
-        tooltipBox.style.top = (actionButton.y + -32) +'px';
+        tooltipBox.style.left = (actionButton.x + 24) + 'px';
+        tooltipBox.style.top = (actionButton.y + -32) + 'px';
         tooltipBox.style.display = 'block';
         this.hideMoreOptions();
     }
-    
-    hideMoreOptions(){
+
+    hideMoreOptions() {
         //Hide all more options menu
-        if(this.ctx)
-            [...this.ctx.querySelectorAll('.moreOptionsMenu')].forEach(m=>m.style.display = 'none');
+        if (this.ctx)
+            [...this.ctx.querySelectorAll('.moreOptionsMenu')].forEach(m => m.style.display = 'none');
     }
 
     hideInfoTooltips(){
@@ -595,25 +586,13 @@ class LayoutHelper {
         this.hideMoreOptions();
         this.hideInfoTooltips();
 
-        let menuBox = this.ctx.querySelector(`.settingsMenu`);
-        const menuAction = menuBox.previousElementSibling.getBoundingClientRect();
-        if(menuBox.style.display == 'none'){
-            menuBox.style.left = (menuAction.x + menuAction.width + 16) +'px';
-            menuBox.style.top = (menuAction.y + 16) +'px';
-            menuBox.style.display = 'block';
-            
-            menuBox.querySelectorAll('.pvSectionChkBox').forEach((chkBox, chkBoxIndex) => {
-                if(this.ctx.hiddenSections.indexOf(chkBoxIndex) > -1){
-                    chkBox.checked = true;
-                }else{
-                    chkBox.checked = false;
-                }
+        function settingsMenu(menu, ctx) {
+            menu.querySelectorAll('.pvSectionChkBox').forEach((chkBox, chkBoxIndex) => {
+                chkBox.checked = ctx.hiddenSections.indexOf(chkBoxIndex) > -1;
             });
-
-            menuBox.style.display = 'block';
-        }else{
-            menuBox.style.display = 'none';
         }
+
+        this.openTooltip(".settingsMenu", 16, settingsMenu);
     }
 
     pvRangeMenuSubmit(){

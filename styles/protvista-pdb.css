@@ -210,6 +210,7 @@
 .infoTooltip .info-header .icon-close {
     align-self: flex-start;
     margin-bottom: 0.25em;
+    cursor: pointer;
 }
 
 .infoTooltip .info-header .icon-close:hover {

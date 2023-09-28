@@ -169,13 +169,20 @@ class ProtvistaPDB extends HTMLElement {
             .map(el => el.querySelector("protvista-pdb-track"))
             .filter(Boolean);
 
+        const changeIcon = (el, enabled) => {
+            if (enabled) el.classList.add("enabled");
+            else el.classList.remove("enabled");
+            const icon = el.children[0];
+            const text = el.children[1];
+            if (icon && text) {
+                icon.classList.remove(enabled ? "icon-star" : "icon-undo-alt");
+                icon.classList.add(enabled ? "icon-undo-alt" : "icon-star");
+                text.innerText = enabled ? "Undo highlight" : "Highlight fragments";
+            }
+        }
+
         document.querySelectorAll(".labelHighlightRight").forEach(el => {
-            el.classList.remove("enabled");
-            const icon=el.children[0];
-            const text=el.children[1];
-            icon.classList.remove("icon-undo-alt");
-            icon.classList.add("icon-star");
-            text.innerText="Highlight fragments";
+            changeIcon(el, false);
         });
 
         let fragments;
@@ -184,13 +191,7 @@ class ProtvistaPDB extends HTMLElement {
             const { trackIndex, subtrackIndex, subtrackData } = options;
             const buttonEl = this.querySelector(`.pvHighlight_${trackIndex}_${subtrackIndex}`);
             const locFragments = flatten(subtrackData.locations.map(location => location.fragments));
-
-            buttonEl.classList.add("enabled");
-            const icon=buttonEl.children[0];
-            const text=buttonEl.children[1];
-            icon.classList.remove("icon-star");
-            icon.classList.add("icon-undo-alt");
-            text.innerText="Undo highlight";
+            changeIcon(buttonEl, true);
             fragments = locFragments.map(fragment => ({ ...fragment, feature: subtrackData }));
         } else {
             fragments = [];
