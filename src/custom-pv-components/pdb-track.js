@@ -45,7 +45,7 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
 
     // this.trackHighlighter.appendHighlightTo(this.svg);
 
-    this.seq_g = this.svg.append("g").attr("class", "sequence-features").attr("transform", "translate(0,-5)");
+    this.seq_g = this.svg.append("g").attr("class", "sequence-features").attr("transform", "translate(0,-8)");
 
     this._createFeatures();
     this.refresh();

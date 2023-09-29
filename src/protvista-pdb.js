@@ -169,8 +169,20 @@ class ProtvistaPDB extends HTMLElement {
             .map(el => el.querySelector("protvista-pdb-track"))
             .filter(Boolean);
 
+        const changeIcon = (el, enabled) => {
+            if (enabled) el.classList.add("enabled");
+            else el.classList.remove("enabled");
+            const icon = el.children[0];
+            const text = el.children[1];
+            if (icon && text) {
+                icon.classList.remove(enabled ? "icon-star" : "icon-undo-alt");
+                icon.classList.add(enabled ? "icon-undo-alt" : "icon-star");
+                text.innerText = enabled ? "Undo highlight" : "Highlight fragments";
+            }
+        }
+
         document.querySelectorAll(".labelHighlightRight").forEach(el => {
-            el.classList.remove("enabled");
+            changeIcon(el, false);
         });
 
         let fragments;
@@ -179,8 +191,7 @@ class ProtvistaPDB extends HTMLElement {
             const { trackIndex, subtrackIndex, subtrackData } = options;
             const buttonEl = this.querySelector(`.pvHighlight_${trackIndex}_${subtrackIndex}`);
             const locFragments = flatten(subtrackData.locations.map(location => location.fragments));
-
-            buttonEl.classList.add("enabled");
+            changeIcon(buttonEl, true);
             fragments = locFragments.map(fragment => ({ ...fragment, feature: subtrackData }));
         } else {
             fragments = [];

@@ -11,7 +11,7 @@ function PDBePvNavSection(ctx) {
 
             <!-- View / highlight menu -->
             <span class="protvistaToolbarIcon" title="Highlight / View region" @click=${e => ctx.layoutHelper.openRangeMenu()}>
-                <i class="icon icon-common icon-lightbulb"></i>
+                <i class="icon icon-common icon-star"></i>
             </span>
             <div class="rangeMenu viewMenuBox" style="display:none">
                 <div class="protvistaRangeMenuTitle">
@@ -42,7 +42,7 @@ function PDBePvNavSection(ctx) {
             <div class="settingsMenu viewMenuBox" style="display:none">
                 <div class="protvistaRangeMenuTitle">
                     <div>Hide sections</div>
-                    <span class="icon icon-functional protvistaMenuClose" data-icon="x" title="close" @click=${e => {e.stopPropagation();ctx.layoutHelper.openCategorySettingsMenu()}}></span>
+                    <span class="icon icon-functional protvistaMenuClose" data-icon="x" title="Close" @click=${e => {e.stopPropagation();ctx.layoutHelper.openCategorySettingsMenu()}}></span>
                 </div>
                 <div class="protvistaForm rangeForm" style="width:215px;max-height:400px;">
                     <table style="font-size:inherit;margin-bottom:0" class="pvHideOptionsTable">

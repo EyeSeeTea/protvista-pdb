@@ -11,29 +11,47 @@
 
 
 .protvistaRow {
-    display: table;
+    display: flex;
     width: 100%;
-    clear: both;
 }
 
 .protvistaCol1 {
-    display: table-cell;
-    vertical-align: middle;
+    display: flex;
+    align-items: center;
+    min-width: 15%;
     width: 15%;
-    font-size:90%;
+    max-width: 15%;
+    font-size: 90%;
+    padding: 0 1em;
+    min-height: 45px;
+}
+
+.protvistaRow:not(.expanded) > .category-label:not(:hover) span::selection {
+    background: #9e9e9e;
+}
+
+.protvistaRow.expanded > .category-label span::selection, .category-label:hover span::selection {
+    background: #253e4b;
+}
+
+.protvistaCol1 span:first-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .protvistaCol2 {
-    display: table-cell;
     width: 85%;
     overflow: hidden;
     padding-left: 10px;
 }
 
-@media (max-width: 1800px) {
+@media (max-width: 2000px) {
     .protvistaCol1 {
+        min-width: 20%;
         width: 20%;
-        font-size:90%;
+        max-width: 20%;
+        font-size: .9em;
     }
     .protvistaCol2 {
         width: 80%;
@@ -42,8 +60,10 @@
 
 @media (max-width: 1400px) {
     .protvistaCol1 {
+        min-width: 22%;
         width: 22%;
-        font-size:90%;
+        max-width: 22%;
+        font-size: .9em;
     }
     .protvistaCol2 {
         width: 78%;
@@ -52,8 +72,10 @@
 
 @media (max-width: 1100px) {
     .protvistaCol1 {
+        min-width: 25%;
         width: 25%;
-        font-size:75%;
+        max-width: 25%;
+        font-size: .75em;
     }
     .protvistaCol2 {
         width: 75%;
@@ -62,8 +84,10 @@
 
 @media (max-width: 1000px) {
     .protvistaCol1 {
+        min-width: 27%;
         width: 27%;
-        font-size:70%;
+        max-width: 27%;
+        font-size: .7em;
     }
     .protvistaCol2 {
         width: 73%;
@@ -72,8 +96,10 @@
 
 @media (max-width: 767px) {
     .protvistaCol1 {
+        min-width: 30%;
         width: 30%;
-        font-size:70%;
+        max-width: 30%;
+        font-size: .7em;
     }
     .protvistaCol2 {
         width: 70%;
@@ -85,8 +111,6 @@
     border-bottom: 1px solid #fff;
     background-color: #b2f5ff;
     cursor: pointer;
-    padding: .8em 1.3em .8em .8em;
-    position: relative;
 }
 
 .category-label:hover {
@@ -94,17 +118,15 @@
 }
 
 .category-label::before {
-    content: ' ';
+    content: '';
     display: inline-block;
-    width: 0;
-    height: 0;
+    width: 10px;
+    height: 10px;
     border-top: 5px solid transparent;
     border-bottom: 5px solid transparent;
     border-left: 5px solid #333;
-    margin-right: 5px;
-    -webkit-transition: all .1s;
-    /* Safari */
-    transition: all .1s;
+    margin-right: .5em;
+    box-sizing: border-box;
 }
 
 .protvistaRow.expanded > .category-label {
@@ -112,21 +134,113 @@
 }
 
 .protvistaRow.expanded > .category-label::before {
-    content: ' ';
+    content: '';
     display: inline-block;
-    width: 0;
-    height: 0;
+    width: 10px;
+    height: 10px;
+    margin-top: 3px;
+    margin-left: -2px;
     border-left: 5px solid transparent;
     border-right: 5px solid transparent;
     border-top: 5px solid #333;
-    margin-right: 5px;
+    margin-right: calc(.5em + 2px);
+    box-sizing: border-box;
 }
 
 .track-label {
     background-color: #d9faff;
-    padding: 0.5em 1.2em 0.5em 1.8em;
+    padding: 0 1em;
     cursor:pointer;
-    position: relative;
+    justify-content: space-between;
+}
+
+.track-label div[class^=pvSubtrackLabel] {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.category-label span[class^=pvTrackLabel] {
+    flex-grow: 1;
+}
+
+.protvistaResetSectionIcon, .more-options {
+    all: unset;
+    background-color: #ffffff;
+    border: 1px solid #d6d6d6;
+    border-radius: .5em;
+    color: #6d6d6d;
+    padding: .125em .5em;
+    margin-left: 1em;
+}
+
+.protvistaResetSectionIcon:hover, .more-options:hover {background-color: #e1e1e1;}
+.protvistaResetSectionIcon:active, .more-options:active {background-color: #cfcfcf;}
+.protvistaResetSectionIcon {
+    display: none;
+}
+
+.moreOptionsMenu.viewMenuBox {
+    position: fixed;
+    left: 0;
+    top: 0;
+    padding: 0.25rem 0;
+    box-sizing: border-box;
+    min-width: 200px;
+}
+
+.infoTooltip.viewMenuBox {
+    display: none;
+    position: fixed;
+    left: 0;
+    top: 0;
+    padding: 1rem;
+    box-sizing: border-box;
+    min-width: 200px;
+    cursor: default;
+}
+
+.infoTooltip .info-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5em;
+}
+
+.infoTooltip .info-header .icon-close {
+    align-self: flex-start;
+    margin-bottom: 0.25em;
+    cursor: pointer;
+}
+
+.infoTooltip .info-header .icon-close:hover {
+    color: #555;
+}
+
+.protvistaCol1 .infoTooltip .title {
+    font-size: 1.15em;
+    font-weight: bold;
+    display: block;
+    margin-right: 0.25em;
+    white-space: inherit;
+}
+
+.more-options-action:hover {background-color: #e1e1e1;}
+.more-options-action:active {background-color: #cfcfcf;}
+
+.more-options-action {
+    all: unset;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding-right: 1rem;
+    box-sizing: border-box;
+    color: #242424;
+}
+
+.more-options-action .icon {
+    display: inline-block;
+    padding: .5rem 1rem;
 }
 
 .category-label.pdbIconsLabel, .track-label.pdbIconsLabel {
@@ -141,10 +255,6 @@
     /* Safari */
     transition: opacity .1s;
     border-bottom: 1px solid #b2f5ff;
-}
-
-.aggregate-track-content{
-    padding-bottom: 5px;
 }
 
 .track-label, .track-content {
@@ -210,54 +320,8 @@
     padding-right: 0 !important;
 }
 
-.labelZoomIcon{
-    position: absolute;
-    left: 5px;
-    cursor: zoom-in;
-    color: #848a86;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 12px;
-}
-
-.labelZoomIcon.active{
-    cursor: zoom-out!important;
-    color: #009e38!important;
-}
-
-.hideLabelIcon{
-    position: absolute;
-    right: 5px;
-    cursor: pointer;
-    color: #848a86;
-    top: 10%;
-    transform: translateY(-10%);
-    font-size: 10px;
-}
-
-.protvistaResetSectionIcon{
-    position: absolute;
-    border: 1px solid #828181;
-    background-color: #828181;
-    border-radius: 50%;
-    cursor: pointer;
-    text-align: center;
-    text-align: center;
-    width: 20px;
-    height: 20px;
-    line-height: 19px;
-    right: 10px;
-    display: none;
-}
-
-.protvistaResetSectionIcon i{
-    color: #fff;
-    cursor: pointer;
-    font-size:80%;
-}
-
 .protvistaToolbar{
-    text-align: right;
+    justify-content: center;
 }
 
 .protvistaToolbarIcon{
@@ -622,11 +686,11 @@ ul.filter-list a {
 
 .viewMenuBox {
     display: block;
-    position: absolute;
+    position: fixed;
     z-index: 1;
     background: #fff;
-    left: 70%;
-    top: 47px;
+    left: 0;
+    top: 0;
     min-width: 150px;
     max-width: 280px;
     overflow: auto;
