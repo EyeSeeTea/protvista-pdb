@@ -1,7 +1,11 @@
+import flatten from "lodash-es/flatten"
+
 class LayoutHelper {
 
     constructor(ctx) {
         this.ctx = ctx;
+        this.handlers = [];
+        this.ctx.addEventListener('mouseleave', () => { this.hideMoreOptions(); });
     }
 
     postProcessLayout() {
@@ -66,7 +70,7 @@ class LayoutHelper {
 
     addDynamicTrackSection(resultData, rowClass, aggregatedTrackClass, trackClass, sectionOptions, borderBottom) {
         if(resultData && Object.keys(resultData).length > 0){
-            this.ctx.querySelector(rowClass).style.display = 'table';
+            this.ctx.querySelector(rowClass).style.display = 'flex';
             let trackSectionEle = this.ctx.querySelectorAll(aggregatedTrackClass)[0];
             if(trackSectionEle){ 
                 trackSectionEle.style.paddingRight = this.ctx.scrollbarWidth+'px';
@@ -100,7 +104,7 @@ class LayoutHelper {
     }
 
     getTrackHeight(trackDataLength, isOverlapping){
-        let eleHt = (trackDataLength > 1) ? 60 : 44;
+        let eleHt = (trackDataLength > 2) ? 74 : 44
         return eleHt;
     }
 
@@ -124,7 +128,7 @@ class LayoutHelper {
 
     hideSubtracks(trackIndex){
         this.ctx.querySelectorAll('.pvSubtracks_'+trackIndex)[0].style.display = 'none';
-        this.ctx.querySelectorAll('.pvTracks_'+trackIndex)[0].style.display = 'table';
+        this.ctx.querySelectorAll('.pvTracks_'+trackIndex)[0].style.display = 'flex';
     }
 
     addHideOptions(optionClass, tIndex, label){
@@ -133,7 +137,7 @@ class LayoutHelper {
             <td style="width:10%;vertical-align:top;"><input type="checkbox" class="pvSectionChkBox" name="cb_${tIndex}" style="margin:0" /></td>
             <td style="padding-bottom:5px;">${label}</td>
         </tr>`;
-        optionEle.style.display = "table-row";
+        optionEle.style.display = "flex";
     }
 
     handleExtEvents(e){
@@ -169,19 +173,39 @@ class LayoutHelper {
               trackData = [trackModel];
               transform = 'transform:translate(0px,-5px)'
             }
-            trackEle.data = trackData;
 
             if(type == 'subtrack'){
+                const subtrackData = flatten(
+                    trackData
+                        .map((subtrack) => subtrack.locations
+                        .map((location, idx) => ({
+                            ...subtrack,
+                            accession: subtrack.accession + "-" + idx,
+                            locations: [location],
+                        })))
+                );
+                trackEle.data = subtrackData;
+
                 if(this.ctx.viewerData.tracks[mainTrackIndex].data.length > 4){
                     trackEle.parentNode.style.paddingRight = '0px';
                 }else{
                     trackEle.parentNode.style.paddingRight = scrollbarWidthVal+'px';
                 }
             }else{
+                const trackDataFlatten = trackData
+                    .map((track) => ({
+                        ...track,
+                        locations: [
+                            { fragments: flatten(track.locations.map(loc => loc.fragments)) }
+                        ]})
+                    )
+                trackEle.data = trackDataFlatten;
                 trackEle.parentNode.style.paddingRight = scrollbarWidthVal+'px';
             }
     
-            if(type == 'track' && trackIndex == 0){
+            const { expandFirstTrack = true } = this.ctx.viewerData;
+
+            if(type == 'track' && trackIndex == 0 && expandFirstTrack){
               this.ctx.querySelectorAll('.pvTracks_0')[0].classList.add("expanded");
               this.ctx.querySelectorAll('.pvTracks_0')[0].querySelectorAll('.pvTrack')[0].style.display = 'none';
               this.ctx.querySelectorAll('.pvSubtracks_0')[0].style.display = 'block';
@@ -225,7 +249,7 @@ class LayoutHelper {
     resetSection(trackIndex){
         this.ctx.querySelector(`.pvResetSection_${trackIndex}`).style.display = 'none';
         this.ctx.hiddenSubtracks[trackIndex].forEach((subtrackIndex) => {
-            this.ctx.querySelector(`.pvSubtrackRow_${trackIndex}_${subtrackIndex}`).style.display = 'table';
+            this.ctx.querySelector(`.pvSubtrackRow_${trackIndex}_${subtrackIndex}`).style.display = 'flex';
         });
         delete this.ctx.hiddenSubtracks[trackIndex];
     }
@@ -257,7 +281,7 @@ class LayoutHelper {
         let totalTracks = this.ctx.viewerData.tracks.length;
         if(trackIndex < totalTracks){
             let pvTracksEle = this.ctx.querySelector(`.pvTracks_${trackIndex}`);
-            pvTracksEle.style.display = 'table';
+            pvTracksEle.style.display = 'flex';
 
             if(pvTracksEle.classList.contains('expanded')){
                 let pvSbTrkEle = this.ctx.querySelector(`.pvSubtracks_${trackIndex}`);
@@ -270,7 +294,7 @@ class LayoutHelper {
 
             if(trackIndex == totalTracks){
                 let consHistoSectionEle = this.ctx.querySelector('.pvConsHistoRow');
-                if(consHistoSectionEle) consHistoSectionEle.style.display = 'table';
+                if(consHistoSectionEle) consHistoSectionEle.style.display = 'flex';
 
                 if(consHistoSectionEle.classList.contains('expanded')){
                     let pvConservationPlotSectionEle = this.ctx.querySelector('.pvConservationPlotRow');
@@ -278,7 +302,7 @@ class LayoutHelper {
                 }
             }else{
                 let variantGraphSectionEle = this.ctx.querySelector('.pvVariantGraphRow');
-                if(variantGraphSectionEle) variantGraphSectionEle.style.display = 'table';
+                if(variantGraphSectionEle) variantGraphSectionEle.style.display = 'flex';
                 if(variantGraphSectionEle.classList.contains('expanded')){
                     let pvVariantPlotSectionEle = this.ctx.querySelector('.pvVariantPlotRow');
                     if(pvVariantPlotSectionEle) pvVariantPlotSectionEle.style.display = 'block';
@@ -368,26 +392,30 @@ class LayoutHelper {
         
     }
 
-    zoomTrack(data, currentZoomTrack){
-
-        if(this.ctx.zoomedTrack != ''){
-            let prevZoomIconEle = this.ctx.querySelector('.pvZoomIcon_'+this.ctx.zoomedTrack);
-            prevZoomIconEle.classList.remove('active');
+    zoomTrack(data, currentZoomTrack) {
+        const changeIcon = (el, zoom) => {
+            if (zoom) el.classList.add('active');
+            else el.classList.remove('active');
+            const icon = el.children[0];
+            const text = el.children[1];
+            if (icon && text) {
+                icon.classList.add(zoom ? "icon-search-minus" : "icon-search-plus");
+                icon.classList.remove(zoom ? "icon-search-plus" : "icon-search-minus");
+                text.innerText = zoom ? "Zoom out" : "Zoom in";
+            }
         }
-        
-        if(this.ctx.zoomedTrack != currentZoomTrack){
-          
-          let zoomIconEle = this.ctx.querySelector('.pvZoomIcon_'+currentZoomTrack);
-          zoomIconEle.classList.add('active');
 
-          this.ctx.zoomedTrack = currentZoomTrack;
-          this.resetZoom(data);
-        }else{
-          
-          this.ctx.zoomedTrack = '';
-          this.resetZoom({start:1, end: null});
+        if (this.ctx.zoomedTrack != '')
+            changeIcon(this.ctx.querySelector('.pvZoomIcon_' + this.ctx.zoomedTrack), false);
+
+        if (this.ctx.zoomedTrack != currentZoomTrack) {
+            changeIcon(this.ctx.querySelector('.pvZoomIcon_' + currentZoomTrack), true);
+            this.ctx.zoomedTrack = currentZoomTrack;
+            this.resetZoom(data);
+        } else {
+            this.ctx.zoomedTrack = '';
+            this.resetZoom({ start: 1, end: null });
         }
-          
     }
 
     resetView(){
@@ -395,6 +423,8 @@ class LayoutHelper {
         //Close open menus
         this.ctx.querySelector('.settingsMenu').style.display = 'none';
         this.ctx.querySelector('.rangeMenu').style.display = 'none';
+        this.hideMoreOptions();
+        this.hideInfoTooltips();
 
         //Reset zoom
         if(this.ctx.zoomedTrack != ''){
@@ -412,15 +442,15 @@ class LayoutHelper {
             if(expTrackEle) expTrackEle.style.display = 'block';
         });
         let firstTrackSection = this.ctx.querySelector(`.pvTracks_0`);
-        firstTrackSection.style.display = 'table';
-        if(!firstTrackSection.classList.contains('expanded')) firstTrackSection.classList.add('expanded');
-        firstTrackSection.querySelector(`.pvTrack`).style.display = 'none';
+        firstTrackSection.style.display = 'flex';
+        // if(!firstTrackSection.classList.contains('expanded')) firstTrackSection.classList.add('expanded');
+        // firstTrackSection.querySelector(`.pvTrack`).style.display = 'none';
         this.ctx.querySelectorAll(`.protvistaRowGroup`).forEach((trackSubSection, subSectionIndex) => {
             trackSubSection.style.display = 'none';
             //Reset hidden subtracks
             if(typeof this.ctx.hiddenSubtracks[subSectionIndex] != 'undefined') this.resetSection(subSectionIndex);
         });
-        this.ctx.querySelector(`.pvSubtracks_0`).style.display = 'block';
+        // this.ctx.querySelector(`.pvSubtracks_0`).style.display = 'block';
         this.ctx.querySelector(`.pvResetSection_0`).style.display = 'none';
 
         let variantTrackEle = this.ctx.querySelector(".pvVariantPlotRow");
@@ -435,7 +465,7 @@ class LayoutHelper {
 
                 if(trackIndex > 0 && trackIndex < totalTracks){
                     let trackSection = this.ctx.querySelector(`.pvTracks_${trackIndex}`);
-                    trackSection.style.display = 'table';
+                    trackSection.style.display = 'flex';
                     if(trackSection.classList.contains('expanded')) trackSection.classList.remove('expanded');
                     trackSection.querySelector(`.pvTrack`).style.display = 'block';
                 }else if(trackIndex >= totalTracks){
@@ -443,7 +473,7 @@ class LayoutHelper {
                     if(trackIndex == totalTracks){
 
                         let consHistoSectionEle = this.ctx.querySelector('.pvConsHistoRow');
-                        if(consHistoSectionEle) consHistoSectionEle.style.display = 'table';
+                        if(consHistoSectionEle) consHistoSectionEle.style.display = 'flex';
         
                         if(consHistoSectionEle.classList.contains('expanded')) consHistoSectionEle.classList.remove('expanded');
                         let pvConservationPlotSectionEle = this.ctx.querySelector('.pvConservationPlotRow');
@@ -453,7 +483,7 @@ class LayoutHelper {
                     }else{
         
                         let variantGraphSectionEle = this.ctx.querySelector('.pvVariantGraphRow');
-                        if(variantGraphSectionEle) variantGraphSectionEle.style.display = 'table';
+                        if(variantGraphSectionEle) variantGraphSectionEle.style.display = 'flex';
         
                         if(variantGraphSectionEle.classList.contains('expanded')) variantGraphSectionEle.classList.remove('expanded');
                         let pvVariantPlotSectionEle = this.ctx.querySelector('.pvVariantPlotRow');
@@ -473,57 +503,96 @@ class LayoutHelper {
         
     }
 
-    openRangeMenu(){
+    openTooltip(className, top, callback) {
+        const menu = this.ctx.querySelector(className);
+        if (menu.style.display == 'none') {
+            const actionSource = menu.previousElementSibling.getBoundingClientRect();
+            menu.style.left = (actionSource.x + actionSource.width + 16) + 'px';
+            menu.style.top = (actionSource.y + top) + 'px';
+            menu.style.display = 'block';
+            if (callback) callback(menu, this.ctx);
+        } else {
+            menu.style.display = 'none';
+        }
+    }
 
+    openRangeMenu() {
         //Close other open menus
         this.ctx.querySelector('.settingsMenu').style.display = 'none';
-        
-        let menuBox = this.ctx.querySelector(`.rangeMenu`);
-        if(menuBox.style.display == 'none'){
+        this.hideMoreOptions();
+        this.hideInfoTooltips();
 
-            let startEle = this.ctx.querySelector('.pvRangeMenuStart');
-            let endEle = this.ctx.querySelector('.pvRangeMenuEnd');
-            
-            if(startEle.value == 0 || endEle.value == 0){
+        function rangeMenu(_menu, ctx) {
+            let startEle = ctx.querySelector('.pvRangeMenuStart');
+            let endEle = ctx.querySelector('.pvRangeMenuEnd');
+
+            if (startEle.value == 0 || endEle.value == 0) {
                 let currentStartVal = 1;
-                let currentEndVal = this.ctx.viewerData.length;
+                let currentEndVal = ctx.viewerData.length;
 
-                let navEle = this.ctx.querySelectorAll('.pvTrack')[0];
-                if (navEle){
+                let navEle = ctx.querySelectorAll('.pvTrack')[0];
+                if (navEle) {
                     currentStartVal = navEle.getAttribute('displaystart');
                     currentEndVal = navEle.getAttribute('displayend');
                 }
-                
+
                 startEle.value = Math.round(currentStartVal);
                 endEle.value = Math.round(currentEndVal);
             }
-
-            menuBox.style.display = 'block';
-        }else{
-            menuBox.style.display = 'none';
         }
+
+        this.openTooltip(".rangeMenu", 16, rangeMenu);
+    }
+
+    openMoreOptions(trackIndex, subtrackIndex) {
+        //Close other open menus
+        this.ctx.querySelector('.settingsMenu').style.display = 'none';
+        this.ctx.querySelector('.rangeMenu').style.display = 'none';
+        this.hideInfoTooltips();
+        this.hideMoreOptions();
+        this.openTooltip(`.moreOptionsMenu_${trackIndex}_${subtrackIndex}`, -16);
+    }
+
+    showInfoTooltip(trackIndex, subtrackIndex) {
+        //Close other open menus
+        this.ctx.querySelector('.settingsMenu').style.display = 'none';
+        this.ctx.querySelector('.rangeMenu').style.display = 'none';
+        this.hideInfoTooltips();
+
+        const tooltipBox = this.ctx.querySelector(`.infoTooltip_${trackIndex}_${subtrackIndex}`);
+        const actionButton = this.ctx.querySelector(`.infoAction_${trackIndex}_${subtrackIndex}`).getBoundingClientRect();
+        tooltipBox.style.left = (actionButton.x + 24) + 'px';
+        tooltipBox.style.top = (actionButton.y + -32) + 'px';
+        tooltipBox.style.display = 'block';
+        this.hideMoreOptions();
+    }
+
+    hideMoreOptions() {
+        //Hide all more options menu
+        if (this.ctx)
+            [...this.ctx.querySelectorAll('.moreOptionsMenu')].forEach(m => m.style.display = 'none');
+    }
+
+    hideInfoTooltips(){
+        //Hide all info tooltips
+        if(this.ctx)
+            [...this.ctx.querySelectorAll('.infoTooltip')].forEach(m=>m.style.display = 'none');
     }
 
     openCategorySettingsMenu(){
 
         //Close other open menus
         this.ctx.querySelector('.rangeMenu').style.display = 'none';
+        this.hideMoreOptions();
+        this.hideInfoTooltips();
 
-        let menuBox = this.ctx.querySelector(`.settingsMenu`);
-        if(menuBox.style.display == 'none'){
-            
-            menuBox.querySelectorAll('.pvSectionChkBox').forEach((chkBox, chkBoxIndex) => {
-                if(this.ctx.hiddenSections.indexOf(chkBoxIndex) > -1){
-                    chkBox.checked = true;
-                }else{
-                    chkBox.checked = false;
-                }
+        function settingsMenu(menu, ctx) {
+            menu.querySelectorAll('.pvSectionChkBox').forEach((chkBox, chkBoxIndex) => {
+                chkBox.checked = ctx.hiddenSections.indexOf(chkBoxIndex) > -1;
             });
-
-            menuBox.style.display = 'block';
-        }else{
-            menuBox.style.display = 'none';
         }
+
+        this.openTooltip(".settingsMenu", 16, settingsMenu);
     }
 
     pvRangeMenuSubmit(){
@@ -567,31 +636,6 @@ class LayoutHelper {
         this.openCategorySettingsMenu();
     }
 
-    showLabelTooltip(e){
-        let tooltipContentEle = e.currentTarget.lastElementChild;
-        if(!tooltipContentEle || tooltipContentEle.className != "labelTooltipContent") return;
-
-        let toolTipText = tooltipContentEle.innerText;
-
-        let labelToolTipEle = this.ctx.querySelector(".labelTooltipBox");
-        
-        labelToolTipEle.innerHTML = toolTipText;
-
-        let labelCoordinates = e.currentTarget.getBoundingClientRect();
-
-        labelToolTipEle.style.left = (labelCoordinates.x + labelCoordinates.width + 5) +'px';
-
-       
-        labelToolTipEle.style.top = (labelCoordinates.y + 10) +'px';
-
-        labelToolTipEle.style.display = 'block';
-
-    }
-
-    hideLabelTooltip(){
-        this.ctx.querySelector(".labelTooltipBox").style.display = 'none';
-    }
-
     showVariantPlot(){
         let variantPlotRowEle = this.ctx.querySelector(".pvVariantPlotRow");
         if(variantPlotRowEle.style.display == "none"){
@@ -623,45 +667,47 @@ class LayoutHelper {
         }));
     }
 
+    addEventListener(name, fn) {
+        this.handlers.push({name, fn});
+        document.addEventListener(name, fn)
+    }
+
     addEventSubscription() {
-        document.addEventListener("PDB.topologyViewer.click", e => {
+        this.addEventListener("PDB.topologyViewer.click", e => {
             this.handleExtEvents(e);
         });
 
-        document.addEventListener("PDB.topologyViewer.mouseover", e => {
+        this.addEventListener("PDB.topologyViewer.mouseover", e => {
             this.handleExtEvents(e);
         });
 
-        document.addEventListener("PDB.topologyViewer.mouseout", e => {
+        this.addEventListener("PDB.topologyViewer.mouseout", e => {
             this.handleExtEvents(e);
         });
 
-        document.addEventListener("PDB.litemol.click", e => {
+        this.addEventListener("PDB.litemol.click", e => {
             this.handleExtEvents(e);
         });
 
-        document.addEventListener("PDB.litemol.mouseover", e => {
+        this.addEventListener("PDB.litemol.mouseover", e => {
             this.handleExtEvents(e);
         });
 
-        document.addEventListener("PDB.molstar.click", e => {
+        this.addEventListener("PDB.molstar.click", e => {
             this.handleExtEvents(e);
         });
 
-        document.addEventListener("PDB.molstar.mouseover", e => {
+        this.addEventListener("PDB.molstar.mouseover", e => {
             this.handleExtEvents(e);
         });
     }
 
+
     removeEventSubscription() {
         if(this.ctx.subscribeEvents){
-            document.removeEventListener("PDB.topologyViewer.click");
-            document.removeEventListener("PDB.topologyViewer.mouseover");
-            document.removeEventListener("PDB.topologyViewer.mouseout");
-            document.removeEventListener("PDB.litemol.click");
-            document.removeEventListener("PDB.litemol.mouseover");
-            document.removeEventListener("PDB.molstar.click");
-            document.removeEventListener("PDB.molstar.mouseover");
+            this.handlers.forEach(handler => {
+                document.removeEventListener(handler.name, handler.fn);
+            })
         }
     }
 }

@@ -24,6 +24,7 @@ class ProtvistaPDB extends HTMLElement {
             displaySequence: true,
             displayConservation: false,
             displayVariants: false,
+            expandFirstTrack: true,
             sequence: undefined,
             length: undefined,
             tracks: [],
@@ -35,6 +36,10 @@ class ProtvistaPDB extends HTMLElement {
 
         // Create layout helper instance
         this.layoutHelper = new LayoutHelper(this);
+
+        this.addEventListener("protvista-unselect", e => {
+            this.setSubtrackFragmentsSelection({ isEnabled: false });
+        });
     }
 
     set viewerdata(data) {
@@ -47,8 +52,13 @@ class ProtvistaPDB extends HTMLElement {
         this.viewerData.displaySequence = (typeof data.displaySequence !== 'undefined') ? data.displaySequence : true;
 
         if(typeof this.viewerData.sequenceConservation !== 'undefined') this.viewerData.displayConservation = true;
-        if(typeof this.viewerData.variants !== 'undefined') this.viewerData.displayVariants = true;
-        
+        if(typeof this.viewerData.variants !== 'undefined') {
+            this.viewerData.displayVariants = true;
+            /* Override default filters using variants viewer data */
+            if (this.viewerData.variants.filters)
+                this.variantFilterAttr = JSON.stringify(this.viewerData.variants.filters);
+        }
+
         this._render();
     }
 
@@ -71,6 +81,7 @@ class ProtvistaPDB extends HTMLElement {
         this.formattedSubTracks = [];
         this.zoomedTrack = '';
         this.variantFilterAttr = JSON.stringify(filterData);
+        this.highlightedSubtrack = { trackIndex: undefined, subtrackIndex: undefined }
         
         this.displayLoadingMessage();
 
@@ -97,7 +108,7 @@ class ProtvistaPDB extends HTMLElement {
         const mainHtml = () => html`
         <div class="protvista-pdb">
             <span class="labelTooltipBox" style="display:none"></span>
-            <protvista-manager attributes="length displaystart displayend highlightstart highlightend activefilters filters">
+            <protvista-manager attributes="length displaystart displayend highlightstart highlightend highlightintervals activefilters filters">
                 
                 <!-- Navigation section -->
                 ${this.viewerData.displayNavigation ? html`${PDBePvNavSection(this)}` : ``}
@@ -144,7 +155,72 @@ class ProtvistaPDB extends HTMLElement {
         this.layoutHelper.removeEventSubscription();
     }
 
-  
+    fireActionEvent(detail) {
+        const name = "protvista-pdb.action"
+        const ev = new CustomEvent(name, { detail, bubbles: true, cancelable: false });
+        this.dispatchEvent(ev);
+    }
+
+    setSubtrackFragmentsSelection(options) {
+        const trackEl = this.querySelector("protvista-pdb-track");
+        const protvistaPdbs = document.querySelectorAll("protvista-pdb");
+        const otherProtvistaPdbs = Array.from(protvistaPdbs)
+            .filter(el => el !== this)
+            .map(el => el.querySelector("protvista-pdb-track"))
+            .filter(Boolean);
+
+        const changeIcon = (el, enabled) => {
+            if (enabled) el.classList.add("enabled");
+            else el.classList.remove("enabled");
+            const icon = el.children[0];
+            const text = el.children[1];
+            if (icon && text) {
+                icon.classList.remove(enabled ? "icon-star" : "icon-undo-alt");
+                icon.classList.add(enabled ? "icon-undo-alt" : "icon-star");
+                text.innerText = enabled ? "Undo highlight" : "Highlight fragments";
+            }
+        }
+
+        document.querySelectorAll(".labelHighlightRight").forEach(el => {
+            changeIcon(el, false);
+        });
+
+        let fragments;
+
+        if (options.isEnabled) {
+            const { trackIndex, subtrackIndex, subtrackData } = options;
+            const buttonEl = this.querySelector(`.pvHighlight_${trackIndex}_${subtrackIndex}`);
+            const locFragments = flatten(subtrackData.locations.map(location => location.fragments));
+            changeIcon(buttonEl, true);
+            fragments = locFragments.map(fragment => ({ ...fragment, feature: subtrackData }));
+        } else {
+            fragments = [];
+        }
+
+        const intervals = fragments.map(fragment => [fragment.start, fragment.end].join("-"));
+        const highlightintervals = intervals.length > 0 ? `:${intervals.join(",")}` : null;
+        sendEvent(trackEl, "change", { highlightintervals });
+        sendEvents(otherProtvistaPdbs, "change", { highlightintervals });
+        sendEvent(trackEl, "protvista-multiselect", { fragments });
+    }
+}
+
+function flatten(arr) {
+    return arr.reduce((acc, val) => acc.concat(val), []);
+}
+
+function sendEvent(element, name, detail) {
+    if  (element) sendEvents([element], name, detail);
+}
+
+function sendEvents(elements, name, detail) {
+    const ev = new CustomEvent(name, {
+        detail,
+        bubbles: true,
+        cancelable: true
+    })
+
+    elements.forEach(el => { el.dispatchEvent(ev); });
 }
 
 export default ProtvistaPDB;
