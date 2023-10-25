@@ -211,6 +211,12 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
     }
   }
 
+  fireActionEvent(detail) {
+    const name = "protvista-pdb.action"
+    const ev = new CustomEvent(name, { detail, bubbles: true, cancelable: false });
+    this.dispatchEvent(ev);
+  }
+
   createTooltip(e, d, closeable = false) {
     
     this.removeAllTooltips();
@@ -236,6 +242,14 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
     const tooltipDom = toolTipEl.getBoundingClientRect();
     const bottomSpace = window.innerHeight - e.clientY;
     const rightSpace = window.innerWidth - e.clientX;
+
+    if (toolTipEl) {
+      const button = toolTipEl.querySelector("[data-start]");
+      if (button) button.addEventListener("click", () => {
+        this.fireActionEvent({ type: "showDialog", start: button.dataset.start, end: button.dataset.end });
+        this.removeAllTooltips();
+      })
+    }
     
     if(bottomSpace < 130){
       toolTipEl.style.top = e.pageY - (tooltipDom.height + 20) +'px';
