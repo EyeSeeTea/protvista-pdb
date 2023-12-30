@@ -202,6 +202,13 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
             cancelable: true
           })
         );
+
+        this.dispatchEvent(
+          new CustomEvent("protvista-remove-highlight", {
+            bubbles: true,
+            cancelable: true
+          })
+        );
       })
       .on("click", (d, i) => {
         d.trackIndex = i;
@@ -220,6 +227,36 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
             cancelable: true
           })
         );
+
+        this.dispatchEvent(
+          new CustomEvent("protvista-highlight-selection", {
+            detail: {
+              fragment: {
+                start: d.start,
+                end: d.end,
+              }
+            },
+            bubbles: true,
+            cancelable: true
+          })
+        );
+
+        //Remove previous highlight
+        const protvistaPdbs = document.querySelectorAll("protvista-pdb");
+        const pdbFirstTracks = Array.from(protvistaPdbs)
+          .map(el => el.querySelector("protvista-pdb-track"))
+          .filter(Boolean);
+
+        pdbFirstTracks.forEach(el => el.dispatchEvent(
+          new CustomEvent("change", {
+            detail: {
+              highlightend: null,
+              highlightstart: null
+            },
+            bubbles: true,
+            cancelable: true
+          })
+        ));
       });
   }
 
@@ -320,7 +357,7 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
       .append("rect")
       .merge(selection)
       .attr("class", "hi")
-      .attr("fill", "rgba(255, 235, 59, 0.8)")
+      .attr("fill", "rgba(255, 145, 0, 0.8)")
       .attr('stroke', 'black')
       .attr("height", this._height)
       .attr("x", interval => this.getXFromSeqPosition(interval.start))

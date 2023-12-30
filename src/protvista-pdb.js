@@ -40,6 +40,10 @@ class ProtvistaPDB extends HTMLElement {
         this.addEventListener("protvista-unselect", e => {
             this.setSubtrackFragmentsSelection({ isEnabled: false });
         });
+
+        this.addEventListener("protvista-highlight-selection", e => {
+            this.setSubtrackFragmentsSelection({ isEnabled: true, fragment: e.detail.fragment });
+        });
     }
 
     set viewerdata(data) {
@@ -182,16 +186,17 @@ class ProtvistaPDB extends HTMLElement {
         }
 
         document.querySelectorAll(".labelHighlightRight").forEach(el => {
-            changeIcon(el, false);
+            //in order to change the icon in all protvista-pdb instances
+            changeIcon(el, options.isEnabled);
         });
 
         let fragments;
 
-        if (options.isEnabled) {
-            const { trackIndex, subtrackIndex, subtrackData } = options;
-            const buttonEl = this.querySelector(`.pvHighlight_${trackIndex}_${subtrackIndex}`);
+        if (options.isEnabled && options.fragment) {
+            fragments = [options.fragment];
+        } else if (options.isEnabled) {
+            const { subtrackData } = options;
             const locFragments = flatten(subtrackData.locations.map(location => location.fragments));
-            changeIcon(buttonEl, true);
             fragments = locFragments.map(fragment => ({ ...fragment, feature: subtrackData }));
         } else {
             fragments = [];
