@@ -130,7 +130,17 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
           }, 50);
         }
         
-        this.dispatchEvent(
+        const protvistaPdbs = document.querySelectorAll("protvista-pdb");
+        const pdbFirstTracks = Array.from(protvistaPdbs)
+          .map(el => el.querySelector("protvista-pdb-track"))
+          .filter(Boolean);
+
+        /* This is not the best way to perform this. The event "change"
+        already comes from protvista, that listen (`addListeners`) and updates
+        each element (`this.protvistaElements` from ProtVistaManager) attributes.
+        So in order to update all tracks, we need to fire each event on some track of
+        each protvista-pdb instance. Also on 'mouseout'. */
+        pdbFirstTracks.forEach(el => el.dispatchEvent(
           new CustomEvent("change", {
             detail: {
               highlightend: f.end,
@@ -139,7 +149,8 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
             bubbles: true,
             cancelable: true
           })
-        );
+        ));
+
         f.trackIndex = i;
         this.dispatchEvent(
           new CustomEvent("protvista-mouseover", {
@@ -168,7 +179,12 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
           }, 50);
         }
 
-        this.dispatchEvent(
+        const protvistaPdbs = document.querySelectorAll("protvista-pdb");
+        const pdbFirstTracks = Array.from(protvistaPdbs)
+          .map(el => el.querySelector("protvista-pdb-track"))
+          .filter(Boolean);
+
+        pdbFirstTracks.forEach(el => el.dispatchEvent(
           new CustomEvent("change", {
             detail: {
               highlightend: null,
@@ -177,7 +193,8 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
             bubbles: true,
             cancelable: true
           })
-        );
+        ));
+
         this.dispatchEvent(
           new CustomEvent("protvista-mouseout", {
             detail: null,
