@@ -32,6 +32,7 @@ class ProtvistaPdbNavigation extends ProtvistaNavigation {
     this._highlightEnd = parseFloat(this.getAttribute('highlightEnd'));
 
     this._onResize = this._onResize.bind(this);
+    this.highlightInterval = this.highlightInterval.bind(this);
 
     this._createNavRuler();
   }
@@ -99,14 +100,49 @@ class ProtvistaPdbNavigation extends ProtvistaNavigation {
       .attr('class', 'zoom-polygon')
       .attr('fill', '#777')
       .attr('fill-opacity','0.3');
+
+    this._highlighted = this._svg
+      .append("rect")
+      .attr("class", "highlighted")
+      .attr("fill", "rgb(255, 235, 59)")
+      .attr("opacity", 0.4)
+      .attr("height", height);
+
     this._updateNavRuler();
 
+    const resize = () => { this._onResize(); this.highlightInterval(); };
+
     if ('ResizeObserver' in window) {
-      this._ro = new ResizeObserver(this._onResize);
+      this._ro = new ResizeObserver(resize);
       this._ro.observe(this);
     }
-    window.addEventListener("resize", this._onResize);
+    window.addEventListener("resize", resize);
+    window.addEventListener("protvista-highlight", ev => this.highlightInterval(ev));
+    window.addEventListener("protvista-mouseout", () => this.removeHighlightInterval());
   }
+
+  highlightInterval(ev) {
+    if (ev) {
+      if (!(ev.detail.start && ev.detail.end)) return;
+      this._highlightStart = ev.detail.start;
+      this._highlightEnd = ev.detail.end;
+    } else if (!(this._highlightStart && this._highlightEnd)) return;
+    if (this._x(this._highlightEnd) - this._x(this._highlightStart) < 0) return;
+    const width = Math.max(1, this._x(this._highlightEnd) - this._x(this._highlightStart));
+    this._highlighted
+      .attr("y", 0)
+      .attr("x", this._x(this._highlightStart))
+      .attr("width", width)
+      .attr("fill", width === 1 ? "rgb(0, 0, 0)" : "rgb(255, 235, 59)");
+  }
+
+  removeHighlightInterval() {
+    this._highlighted
+      .attr("y", undefined)
+      .attr("x", undefined)
+      .attr("width", undefined);
+  }
+
 }
 
 export default ProtvistaPdbNavigation;

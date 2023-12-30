@@ -365,22 +365,33 @@ class LayoutHelper {
         }
     
         if(typeof param !== 'undefined' && typeof param.highlight !== 'undefined' && param.highlight){
-          navEle.dispatchEvent(new CustomEvent('change', {
+            navEle.dispatchEvent(new CustomEvent('change', {
             detail: {
-              highlightstart: currentStartVal,
-              highlightend: currentEndVal
+                    highlightstart: currentStartVal,
+                    highlightend: currentEndVal
             }, bubbles: true, cancelable: true
-          }));
-          
-        }else{
+            }));
+
+            navEle.dispatchEvent(
+                new CustomEvent("protvista-highlight", {
+                    detail: {
+                        start: currentStartVal,
+                        end: currentEndVal,
+                    },
+                    bubbles: true,
+                    cancelable: true
+                })
+            );
+
+        } else {
 
             navEle.dispatchEvent(new CustomEvent('change', {
                 detail: {
-                  displaystart: currentStartVal,
-                  displayend: currentEndVal
+                    displaystart: currentStartVal,
+                    displayend: currentEndVal
                 }, bubbles: true, cancelable: true
-            }));  
-    
+            }));
+
           navEle.dispatchEvent(new CustomEvent('change', {
             detail: {
               highlightstart: null,
