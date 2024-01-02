@@ -117,7 +117,7 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
         let lightColor = this.colorMixer(-0.3, apiColor); //lightened by 30%
         return lightColor;
       })
-      .on("mouseover", (f, i) => {
+      .on("mouseenter", (f, i) => {
         const self = this;
         const e = d3.event;
   
@@ -257,6 +257,12 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
             cancelable: true
           })
         ));
+        this.dispatchEvent(
+          new CustomEvent("protvista-remove-highlight", {
+            bubbles: true,
+            cancelable: true
+          })
+        );
       });
   }
 

@@ -108,6 +108,9 @@ class ProtvistaPdbNavigation extends ProtvistaNavigation {
       .attr("opacity", 0.4)
       .attr("height", height);
 
+    this._highlightFragments = this._svg
+      .append("g");
+
     this._updateNavRuler();
 
     const resize = () => { this._onResize(); this.highlightInterval(); };
@@ -118,7 +121,7 @@ class ProtvistaPdbNavigation extends ProtvistaNavigation {
     }
     window.addEventListener("resize", resize);
     window.addEventListener("protvista-highlight", ev => this.highlightInterval(ev));
-    window.addEventListener("protvista-mouseout", () => this.removeHighlightInterval());
+    window.addEventListener("protvista-remove-highlight", () => this.removeHighlightInterval());
   }
 
   highlightInterval(ev) {
@@ -141,6 +144,34 @@ class ProtvistaPdbNavigation extends ProtvistaNavigation {
       .attr("y", undefined)
       .attr("x", undefined)
       .attr("width", undefined);
+  }
+
+  highlightFragments() {
+    const intervalsString = (":10-20,50-60,110-200" || "").split(":")[1] || "";
+
+    const intervals = intervalsString.split(",").filter(Boolean).map(ns => {
+      const [start, end] = ns.split("-").map(s => parseInt(s));
+      return { start, end };
+    })
+
+    if (!this._highlightFragments) return;
+
+    const selection = this._highlightFragments
+      .selectAll("rect.hi")
+      .data(intervals)
+
+    selection.exit().remove()
+
+    selection.enter()
+      .append("rect")
+      .merge(selection)
+      .attr("class", "hi")
+      .attr("fill", "rgba(255, 145, 0, 0.8)")
+      .attr('stroke', 'black')
+      .attr("height", this._height)
+      .attr("x", interval => this.getXFromSeqPosition(interval.start))
+      .style("opacity", 0.3)
+      .attr("width", interval => this.getSingleBaseWidth() * (interval.end - interval.start + 1))
   }
 
 }
