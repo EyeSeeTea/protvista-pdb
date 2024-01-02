@@ -373,7 +373,7 @@ class LayoutHelper {
             }));
 
             navEle.dispatchEvent(
-                new CustomEvent("protvista-highlight", {
+                new CustomEvent("protvista-highlight-interval", {
                     detail: {
                         start: currentStartVal,
                         end: currentEndVal,

@@ -30,9 +30,11 @@ class ProtvistaPdbNavigation extends ProtvistaNavigation {
     this._displayend = parseFloat(this.getAttribute('displayend')) || (this._offset > 0) ? (this._length + this._offset - 1) : this._length;
     this._highlightStart = parseFloat(this.getAttribute('highlightStart'));
     this._highlightEnd = parseFloat(this.getAttribute('highlightEnd'));
+    this._highlightFragments = [];
 
     this._onResize = this._onResize.bind(this);
     this.highlightInterval = this.highlightInterval.bind(this);
+    this.highlightFragments = this.highlightFragments.bind(this);
 
     this._createNavRuler();
   }
@@ -108,7 +110,7 @@ class ProtvistaPdbNavigation extends ProtvistaNavigation {
       .attr("opacity", 0.4)
       .attr("height", height);
 
-    this._highlightFragments = this._svg
+    this._fragmentsGroup = this._svg
       .append("g");
 
     this._updateNavRuler();
@@ -120,8 +122,10 @@ class ProtvistaPdbNavigation extends ProtvistaNavigation {
       this._ro.observe(this);
     }
     window.addEventListener("resize", resize);
-    window.addEventListener("protvista-highlight", ev => this.highlightInterval(ev));
+    window.addEventListener("protvista-highlight-interval", ev => this.highlightInterval(ev));
+    window.addEventListener("protvista-highlight-fragments", ev => this.highlightFragments(ev));
     window.addEventListener("protvista-remove-highlight", () => this.removeHighlightInterval());
+    window.addEventListener("protvista-remove-fragments", () => this.removeHighlightFragments());
   }
 
   highlightInterval(ev) {
@@ -146,32 +150,33 @@ class ProtvistaPdbNavigation extends ProtvistaNavigation {
       .attr("width", undefined);
   }
 
-  highlightFragments() {
-    const intervalsString = (":10-20,50-60,110-200" || "").split(":")[1] || "";
+  removeHighlightFragments() {
+    if (this._highlightFragments && this._highlightFragments.length > 0)
+      this._highlightFragments.forEach(rect => rect.remove());
+  }
+
+  highlightFragments(ev) {
+    const intervalsString = (ev.detail.intervalsString || "").split(":")[1] || "";
+    if (!Boolean(intervalsString)) return;
 
     const intervals = intervalsString.split(",").filter(Boolean).map(ns => {
       const [start, end] = ns.split("-").map(s => parseInt(s));
       return { start, end };
-    })
+    });
 
-    if (!this._highlightFragments) return;
+    this.removeHighlightFragments();
 
-    const selection = this._highlightFragments
-      .selectAll("rect.hi")
-      .data(intervals)
-
-    selection.exit().remove()
-
-    selection.enter()
-      .append("rect")
-      .merge(selection)
-      .attr("class", "hi")
-      .attr("fill", "rgba(255, 145, 0, 0.8)")
-      .attr('stroke', 'black')
-      .attr("height", this._height)
-      .attr("x", interval => this.getXFromSeqPosition(interval.start))
-      .style("opacity", 0.3)
-      .attr("width", interval => this.getSingleBaseWidth() * (interval.end - interval.start + 1))
+    this._highlightFragments = intervals.map(({ start, end }) => {
+      const width = Math.max(1, this._x(end) - this._x(start));
+      return this._fragmentsGroup
+        .append("rect")
+        .attr("fill", "rgba(255, 145, 0, 0.8)")
+        .attr("opacity", 0.4)
+        .attr("x", this._x(start))
+        .attr("y", 0)
+        .attr("height", height)
+        .attr("width", width);
+    });
   }
 
 }

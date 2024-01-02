@@ -160,7 +160,7 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
           })
         );
         this.dispatchEvent(
-          new CustomEvent("protvista-highlight", {
+          new CustomEvent("protvista-highlight-interval", {
             detail: f,
             bubbles: true,
             cancelable: true
@@ -259,6 +259,15 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
         ));
         this.dispatchEvent(
           new CustomEvent("protvista-remove-highlight", {
+            bubbles: true,
+            cancelable: true
+          })
+        );
+
+        //Add new highlight
+        this.dispatchEvent(
+          new CustomEvent("protvista-highlight-fragments", {
+            detail: { intervalsString: this._highlightintervals },
             bubbles: true,
             cancelable: true
           })
