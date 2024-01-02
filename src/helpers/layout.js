@@ -433,7 +433,8 @@ class LayoutHelper {
 
         //Close open menus
         this.ctx.querySelector('.settingsMenu').style.display = 'none';
-        this.ctx.querySelector('.rangeMenu').style.display = 'none';
+        this.ctx.querySelector('.viewRangeMenu').style.display = 'none';
+        this.ctx.querySelector('.highlightRangeMenu').style.display = 'none';
         this.hideMoreOptions();
         this.hideInfoTooltips();
 
@@ -514,7 +515,7 @@ class LayoutHelper {
         
     }
 
-    openTooltip(className, top, callback) {
+    toggleTooltip(className, top, callback) {
         const menu = this.ctx.querySelector(className);
         if (menu.style.display == 'none') {
             const actionSource = menu.previousElementSibling.getBoundingClientRect();
@@ -527,15 +528,16 @@ class LayoutHelper {
         }
     }
 
-    openRangeMenu() {
+    openViewRangeMenu() {
         //Close other open menus
         this.ctx.querySelector('.settingsMenu').style.display = 'none';
+        this.ctx.querySelector('.highlightRangeMenu').style.display = 'none';
         this.hideMoreOptions();
         this.hideInfoTooltips();
 
         function rangeMenu(_menu, ctx) {
-            let startEle = ctx.querySelector('.pvRangeMenuStart');
-            let endEle = ctx.querySelector('.pvRangeMenuEnd');
+            let startEle = ctx.querySelector('.pvViewRangeMenuStart');
+            let endEle = ctx.querySelector('.pvViewRangeMenuEnd');
 
             if (startEle.value == 0 || endEle.value == 0) {
                 let currentStartVal = 1;
@@ -552,22 +554,53 @@ class LayoutHelper {
             }
         }
 
-        this.openTooltip(".rangeMenu", 16, rangeMenu);
+        this.toggleTooltip(".viewRangeMenu", 16, rangeMenu);
+    }
+
+    openHighlightRangeMenu() {
+        //Close other open menus
+        this.ctx.querySelector('.settingsMenu').style.display = 'none';
+        this.ctx.querySelector('.viewRangeMenu').style.display = 'none';
+        this.hideMoreOptions();
+        this.hideInfoTooltips();
+
+        function rangeMenu(_menu, ctx) {
+            let startEle = ctx.querySelector('.pvHighlightRangeMenuStart');
+            let endEle = ctx.querySelector('.pvHighlightRangeMenuEnd');
+
+            if (startEle.value == 0 || endEle.value == 0) {
+                let currentStartVal = 1;
+                let currentEndVal = ctx.viewerData.length;
+
+                let navEle = ctx.querySelectorAll('.pvTrack')[0];
+                if (navEle) {
+                    currentStartVal = navEle.getAttribute('displaystart');
+                    currentEndVal = navEle.getAttribute('displayend');
+                }
+
+                startEle.value = Math.round(currentStartVal);
+                endEle.value = Math.round(currentEndVal);
+            }
+        }
+
+        this.toggleTooltip(".highlightRangeMenu", 16, rangeMenu);
     }
 
     openMoreOptions(trackIndex, subtrackIndex) {
         //Close other open menus
         this.ctx.querySelector('.settingsMenu').style.display = 'none';
-        this.ctx.querySelector('.rangeMenu').style.display = 'none';
+        this.ctx.querySelector('.viewRangeMenu').style.display = 'none';
+        this.ctx.querySelector('.highlightRangeMenu').style.display = 'none';
         this.hideInfoTooltips();
         this.hideMoreOptions();
-        this.openTooltip(`.moreOptionsMenu_${trackIndex}_${subtrackIndex}`, -16);
+        this.toggleTooltip(`.moreOptionsMenu_${trackIndex}_${subtrackIndex}`, -16);
     }
 
     showInfoTooltip(trackIndex, subtrackIndex) {
         //Close other open menus
         this.ctx.querySelector('.settingsMenu').style.display = 'none';
-        this.ctx.querySelector('.rangeMenu').style.display = 'none';
+        this.ctx.querySelector('.viewRangeMenu').style.display = 'none';
+        this.ctx.querySelector('.highlightRangeMenu').style.display = 'none';
         this.hideInfoTooltips();
 
         const tooltipBox = this.ctx.querySelector(`.infoTooltip_${trackIndex}_${subtrackIndex}`);
@@ -593,7 +626,8 @@ class LayoutHelper {
     openCategorySettingsMenu(){
 
         //Close other open menus
-        this.ctx.querySelector('.rangeMenu').style.display = 'none';
+        this.ctx.querySelector('.viewRangeMenu').style.display = 'none';
+        this.ctx.querySelector('.highlightRangeMenu').style.display = 'none';
         this.hideMoreOptions();
         this.hideInfoTooltips();
 
@@ -603,12 +637,12 @@ class LayoutHelper {
             });
         }
 
-        this.openTooltip(".settingsMenu", 16, settingsMenu);
+        this.toggleTooltip(".settingsMenu", 16, settingsMenu);
     }
 
-    pvRangeMenuSubmit(){
-        let startVal = this.ctx.querySelector('.pvRangeMenuStart').value;
-        let endVal = this.ctx.querySelector('.pvRangeMenuEnd').value;
+    pvViewRangeMenuSubmit() {
+        let startVal = this.ctx.querySelector('.pvViewRangeMenuStart').value;
+        let endVal = this.ctx.querySelector('.pvViewRangeMenuEnd').value;
 
         if(startVal != '' && endVal != ''){
             startVal = parseFloat(startVal);
@@ -618,15 +652,30 @@ class LayoutHelper {
                     endVal = this.ctx.viewerData.length;
                 }
 
-                let resetParam = {start: Math.round(startVal), end: Math.round(endVal)}
-
-                let highlightCheckEle = this.ctx.querySelector('.pvRangeMenuHighlight');
-                if(highlightCheckEle.checked){
-                    resetParam['highlight'] = true;
-                }
+                let resetParam = { start: Math.round(startVal), end: Math.round(endVal), highlight: false }
 
                 this.resetZoom(resetParam);
-                this.openRangeMenu();
+                this.openViewRangeMenu();
+            }
+        }
+    }
+
+    pvHighlightRangeMenuSubmit() {
+        let startVal = this.ctx.querySelector('.pvHighlightRangeMenuStart').value;
+        let endVal = this.ctx.querySelector('.pvHighlightRangeMenuEnd').value;
+
+        if (startVal != '' && endVal != '') {
+            startVal = parseFloat(startVal);
+            endVal = parseFloat(endVal);
+            if (endVal >= startVal) {
+                if (endVal > this.ctx.viewerData.length) {
+                    endVal = this.ctx.viewerData.length;
+                }
+
+                let resetParam = { start: Math.round(startVal), end: Math.round(endVal), highlight: true }
+
+                this.resetZoom(resetParam);
+                this.openHighlightRangeMenu();
             }
         }
     }
