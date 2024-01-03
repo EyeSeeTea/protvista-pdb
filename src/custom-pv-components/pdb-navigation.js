@@ -130,10 +130,10 @@ class ProtvistaPdbNavigation extends ProtvistaNavigation {
 
   highlightInterval(ev) {
     if (ev) {
-      if (!(ev.detail.start && ev.detail.end)) return;
+      if (!(ev.detail.start >= 0 && ev.detail.end >= 0)) return;
       this._highlightStart = ev.detail.start;
       this._highlightEnd = ev.detail.end;
-    } else if (!(this._highlightStart && this._highlightEnd)) return;
+    } else if (!(this._highlightStart >= 0 && this._highlightEnd >= 0)) return;
     if (this._x(this._highlightEnd) - this._x(this._highlightStart) < 0) return;
     const width = Math.max(1, this._x(this._highlightEnd) - this._x(this._highlightStart));
     this._highlighted
