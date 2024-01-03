@@ -24,19 +24,19 @@ function PDBePvTracksSection(ctx) {
                         <button type="button" class="more-options" title="Show options" @click=${e => ctx.layoutHelper.openMoreOptions(trackIndex, subtrackIndex)}><i class="icon icon-common icon-ellipsis-h"></i></button>
                         <!--More options menu-->
                         <div class="moreOptionsMenu viewMenuBox moreOptionsMenu_${trackIndex}_${subtrackIndex}" style="display:none">
-                            <button type="button" class="more-options-action ${getHighlightClass(ctx, trackIndex, subtrackIndex)}" @click=${(ev) => highlightSubtrackFragments(ev, ctx, trackIndex, subtrackIndex, subtrackData)}>
+                            <button type="button" class="more-options-action ${getHighlightClass(ctx, trackIndex, subtrackIndex)}" @click=${(ev) => { highlightSubtrackFragments(ev, ctx, trackIndex, subtrackIndex, subtrackData); ctx.layoutHelper.hideMoreOptions(); }}>
                                 <span class="icon icon-common icon-star"></span>
                                 <span>Highlight fragments</span>
                             </button>
-                            <button type="button" class="more-options-action pvZoomIcon_${trackIndex}_${subtrackIndex}" @click=${e => { ctx.layoutHelper.zoomTrack({start:1, end: null, trackData: subtrackData}, trackIndex+'_'+subtrackIndex); }}>
+                            <button type="button" class="more-options-action pvZoomIcon_${trackIndex}_${subtrackIndex}" @click=${e => { ctx.layoutHelper.zoomTrack({ start: 1, end: null, trackData: subtrackData }, trackIndex + '_' + subtrackIndex); ctx.layoutHelper.hideMoreOptions(); }}>
                                 <span class="icon icon-common icon-search-plus"></span>
                                 <span>Zoom in</span>
                             </button>
-                            ${subtrackData.help ? html`<button type="button" class="more-options-action infoAction_${trackIndex}_${subtrackIndex}" @click=${e => ctx.layoutHelper.showInfoTooltip(trackIndex, subtrackIndex)}>
+                            ${subtrackData.help ? html`<button type="button" class="more-options-action infoAction_${trackIndex}_${subtrackIndex}" @click=${e => { ctx.layoutHelper.showInfoTooltip(trackIndex, subtrackIndex); ctx.layoutHelper.hideMoreOptions(); }}>
                                 <span class="icon icon-common icon-info"></span>
                                 More info
                             </button>` : ""}
-                            <button type="button" class="more-options-action" @click=${e => {e.stopPropagation();ctx.layoutHelper.hideSubTrack(trackIndex, subtrackIndex)}}>
+                            <button type="button" class="more-options-action" @click=${e => { e.stopPropagation(); ctx.layoutHelper.hideSubTrack(trackIndex, subtrackIndex); ctx.layoutHelper.hideMoreOptions(); ctx.layoutHelper.hideInfoTooltips(); }}>
                                 <span class="icon icon-common icon-eye-slash"></span>
                                 Hide
                             </button>

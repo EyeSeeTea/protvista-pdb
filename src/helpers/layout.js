@@ -523,8 +523,10 @@ class LayoutHelper {
             menu.style.top = (actionSource.y + top) + 'px';
             menu.style.display = 'block';
             if (callback) callback(menu, this.ctx);
+            return { state: "visible" };
         } else {
             menu.style.display = 'none';
+            return { state: "hidden" };
         }
     }
 
@@ -554,7 +556,7 @@ class LayoutHelper {
             }
         }
 
-        this.toggleTooltip(".viewRangeMenu", 16, rangeMenu);
+        this.toggleTooltip(".viewRangeMenu", -16, rangeMenu);
     }
 
     openHighlightRangeMenu() {
@@ -583,10 +585,14 @@ class LayoutHelper {
             }
         }
 
-        this.toggleTooltip(".highlightRangeMenu", 16, rangeMenu);
+        this.toggleTooltip(".highlightRangeMenu", -16, rangeMenu);
     }
 
     openMoreOptions(trackIndex, subtrackIndex) {
+        //Check if already visible
+        const { state } = this.toggleTooltip(`.moreOptionsMenu_${trackIndex}_${subtrackIndex}`, -16);
+        //If is hidden is because it was already visible and got hidden
+        if (state === "hidden") { this.hideMoreOptions(); this.hideInfoTooltips(); return; }
         //Close other open menus
         this.ctx.querySelector('.settingsMenu').style.display = 'none';
         this.ctx.querySelector('.viewRangeMenu').style.display = 'none';
@@ -637,7 +643,7 @@ class LayoutHelper {
             });
         }
 
-        this.toggleTooltip(".settingsMenu", 16, settingsMenu);
+        this.toggleTooltip(".settingsMenu", -16, settingsMenu);
     }
 
     pvViewRangeMenuSubmit() {
