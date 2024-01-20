@@ -55,7 +55,7 @@ function PDBePvSeqSection(ctx) {
 
         <!-- Navigation Component -->
         <div class="protvistaCol2 pvSeqSection">
-            <protvista-sequence length="${ctx.viewerData.length}" sequence="${ctx.viewerData.sequence}"></protvista-sequence>
+            <protvista-pdb-sequence length="${ctx.viewerData.length}" sequence="${ctx.viewerData.sequence}"></protvista-pdb-sequence>
         </div>
 
     </div>`
