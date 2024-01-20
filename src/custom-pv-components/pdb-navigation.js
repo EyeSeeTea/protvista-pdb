@@ -91,18 +91,6 @@ class ProtvistaPdbNavigation extends ProtvistaNavigation {
         }
       });
 
-    this._brushG = this._svg.append("g")
-      .attr("class", "brush")
-      .call(this._viewport);
-
-    this._brushG
-      .call(this._viewport.move, [this._x(this._displaystart), this._x(this._displayend)]);
-
-    this.polygon = this._svg.append("polygon")
-      .attr('class', 'zoom-polygon')
-      .attr('fill', '#777')
-      .attr('fill-opacity','0.3');
-
     this._highlighted = this._svg
       .append("rect")
       .attr("class", "highlighted")
@@ -112,6 +100,21 @@ class ProtvistaPdbNavigation extends ProtvistaNavigation {
 
     this._fragmentsGroup = this._svg
       .append("g");
+
+    this._brushG = this._svg.append("g")
+      .attr("class", "brush")
+      .call(this._viewport);
+
+    this._brushG
+      .call(this._viewport.move, [this._x(this._displaystart), this._x(this._displayend)]);
+
+    this._brushG.select(".selection").attr('stroke', '');
+
+    this.polygon = this._svg.append("polygon")
+      .attr('class', 'zoom-polygon')
+      .attr('fill', '#777')
+      .attr('fill-opacity','0.3');
+
 
     this._updateNavRuler();
 
