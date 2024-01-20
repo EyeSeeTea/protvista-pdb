@@ -512,7 +512,7 @@ class LayoutHelper {
         this.ctx.hiddenSections = [];
         this.ctx.hiddenSubtracks = Object.assign({},{});
           
-        
+        this.ctx.setSubtrackFragmentsSelection({ isEnabled: false });
     }
 
     toggleTooltip(className, top, callback) {
