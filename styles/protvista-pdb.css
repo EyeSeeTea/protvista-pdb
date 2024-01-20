@@ -430,6 +430,7 @@ protvista-tooltip {
     -webkit-box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
     -moz-box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
     box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
+    background-color: #fff;
     /*opacity: .9;*/
 }
 
@@ -458,6 +459,9 @@ protvista-tooltip .tooltip-body {
 protvista-tooltip .tooltip-header {
     background-color: #595959;
     line-height: 3em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 /* protvista-tooltip .tooltip-header::before {

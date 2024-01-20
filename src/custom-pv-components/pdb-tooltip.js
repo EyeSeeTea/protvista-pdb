@@ -111,7 +111,7 @@ class ProtvistaPdbTooltip extends HTMLElement {
 
         let html = `<div class="tooltip-header"><span class="tooltip-header-title">${this._title}</span>`;
         if(this.closeable) {
-            html = `${html}<span class="tooltip-close" style="float:right"></span>`
+            html = `${html}<span class="tooltip-close"></span>`
         }
         html = `${html}</div><div class="tooltip-body">${this._content}</div>`;
         this.innerHTML = html;

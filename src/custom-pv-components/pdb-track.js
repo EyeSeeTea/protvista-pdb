@@ -292,8 +292,9 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
     this.removeAllTooltips();
     const tooltip = document.createElement("protvista-tooltip");
     
-    tooltip.left =  e.pageX + 15; 
-    tooltip.top = e.pageY + 5;
+    tooltip.left = e.pageX + 12;
+    tooltip.top = e.pageY + 12;
+    tooltip.style.marginRight = 32 + 'px';
     tooltip.style.marginLeft = 0;
     tooltip.style.marginTop = 0;
     
@@ -311,15 +312,15 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
     const toolTipEl = d3.select(tooltip).node();
     const tooltipDom = toolTipEl.getBoundingClientRect();
     const bottomSpace = window.innerHeight - e.clientY;
-    const rightSpace = window.innerWidth - e.clientX;
+    const rightSpace = document.documentElement.clientWidth - e.clientX; //not window.innerWidth in order to remove possible scrollbars
     
-    if(bottomSpace < 130){
-      toolTipEl.style.top = e.pageY - (tooltipDom.height + 20) +'px';
+    if (bottomSpace < tooltipDom.height) {
+      toolTipEl.style.top = e.pageY - (tooltipDom.height + 8) + 'px';
     }
 
-    if(rightSpace < 300){
+    if (rightSpace < tooltipDom.width) {
       toolTipEl.style.left = '';
-      toolTipEl.style.right = (rightSpace - 10)+'px';
+      toolTipEl.style.right = (rightSpace - 12) + 'px';
     }
   }
 
