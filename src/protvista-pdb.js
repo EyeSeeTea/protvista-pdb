@@ -44,6 +44,8 @@ class ProtvistaPDB extends HTMLElement {
         this.addEventListener("protvista-highlight-selection", e => {
             this.setSubtrackFragmentsSelection({ isEnabled: true, fragment: e.detail.fragment });
         });
+
+        this.highlightActive = false;
     }
 
     set viewerdata(data) {
@@ -169,6 +171,7 @@ class ProtvistaPDB extends HTMLElement {
 
         //Remove highlight fragments
         if (!options.isEnabled) sendEvent(window, "protvista-remove-fragments", undefined);
+        this.highlightActive = options.isEnabled;
 
         const trackEl = this.querySelector("protvista-pdb-track");
         const protvistaPdbs = document.querySelectorAll("protvista-pdb");
@@ -178,18 +181,24 @@ class ProtvistaPDB extends HTMLElement {
             .filter(Boolean);
 
         const changeIcon = (el, enabled) => {
-            if (enabled) el.classList.add("enabled");
-            else el.classList.remove("enabled");
+            if (!el.classList.contains("protvistaToolbarIcon")) {
+                if (enabled) el.classList.add("enabled");
+                else el.classList.remove("enabled");
+            }
             const icon = el.children[0];
             const text = el.children[1];
             if (icon && text) {
                 icon.classList.remove(enabled ? "icon-star" : "icon-undo-alt");
                 icon.classList.add(enabled ? "icon-undo-alt" : "icon-star");
                 text.innerText = enabled ? "Undo highlight" : "Highlight fragments";
+            } else if (icon && el.classList.contains("protvistaToolbarIcon")) {
+                icon.classList.remove(enabled ? "icon-star" : "icon-undo-alt");
+                icon.classList.add(enabled ? "icon-undo-alt" : "icon-star");
+                el.title = enabled ? "Undo highlight" : "Highlight region";
             }
         }
 
-        document.querySelectorAll(".labelHighlightRight").forEach(el => {
+        document.querySelectorAll(".labelHighlightRight, .highlightToolbarIcon").forEach(el => {
             //in order to change the icon in all protvista-pdb instances
             changeIcon(el, options.isEnabled);
         });

@@ -30,7 +30,7 @@ function PDBePvSeqSection(ctx) {
         <!-- View menu -->
         
         <!-- Highlight menu -->
-        <span class="protvistaToolbarIcon" title="Highlight region" @click=${e => ctx.layoutHelper.openHighlightRangeMenu()}>
+        <span class="protvistaToolbarIcon highlightToolbarIcon" title="Highlight region" @click=${e => ctx.highlightActive ? ctx.setSubtrackFragmentsSelection({ isEnabled: false }) : ctx.layoutHelper.openHighlightRangeMenu() }>
             <i class="icon icon-common icon-star"></i>
         </span>
         <div class="highlightRangeMenu viewMenuBox" style="display:none">
