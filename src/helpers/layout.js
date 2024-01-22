@@ -678,9 +678,17 @@ class LayoutHelper {
                     endVal = this.ctx.viewerData.length;
                 }
 
-                let resetParam = { start: Math.round(startVal), end: Math.round(endVal), highlight: true }
+                const fragment = { start: Math.round(startVal), end: Math.round(endVal), feature: { bestChainId: this.ctx.chainId } }
 
-                this.resetZoom(resetParam);
+                document.dispatchEvent(
+                    new CustomEvent("protvista-click", {
+                        detail: fragment,
+                        bubbles: true,
+                        cancelable: true
+                    })
+                );
+
+                this.ctx.setSubtrackFragmentsSelection({ isEnabled: true, fragment });
                 this.openHighlightRangeMenu();
             }
         }

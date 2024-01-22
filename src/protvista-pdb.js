@@ -65,6 +65,8 @@ class ProtvistaPDB extends HTMLElement {
                 this.variantFilterAttr = JSON.stringify(this.viewerData.variants.filters);
         }
 
+        this.chainId = this.viewerData.chainId;
+
         this._render();
     }
 
