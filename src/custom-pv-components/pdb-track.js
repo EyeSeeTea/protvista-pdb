@@ -17,6 +17,27 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
     return [...ProtvistaTrack.observedAttributes, "highlightintervals"];
   }
 
+  applyZoomTranslation() {
+    if (!this.svg || !this._originXScale) return; // Calculating the scale factor based in the current start/end coordinates and the length of the sequence.
+
+    const k = Math.max(1, // +1 because the displayend base should be included
+      this.length / (1 + this._displayend - this._displaystart)); // The deltaX gets calculated using the position of the first base to display in original scale
+
+    const dx = -this._originXScale(this._displaystart);
+    this.dontDispatch = true; // This is to avoid infinite loops
+
+    const { height, width } = this.svg.node().getBoundingClientRect();
+    if (height <= 0 || width <= 0) return; // Fix d3 error: https://github.com/Webiks/force-horse/issues/19#issuecomment-1242800033
+
+    this.svg.call( // We trigger a zoom action
+      this.zoom.transform, d3.zoomIdentity // Identity transformation
+        .scale(k) // Scaled by our scaled factor
+        .translate(dx, 0) // Translated by the delta
+    );
+    this.dontDispatch = false;
+    this.refresh();
+  }
+
   _createTrack() {
     this._layoutObj.init(this._data);
 
