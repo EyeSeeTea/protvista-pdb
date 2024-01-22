@@ -234,6 +234,8 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
               fragment: {
                 start: d.start,
                 end: d.end,
+                color: d.color,
+                feature: d.feature
               }
             },
             bubbles: true,
