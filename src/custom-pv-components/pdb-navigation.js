@@ -39,6 +39,22 @@ class ProtvistaPdbNavigation extends ProtvistaNavigation {
     this._createNavRuler();
   }
 
+  _onResize() {
+    this.width = this.offsetWidth;
+    if (this.width - padding.right < 0) return; //rect cannot have negative width
+    this._x = this._x.range([padding.left, this.width - padding.right]);
+
+    this._svg.attr('width', this.width);
+
+    this._axis.call(this._xAxis);
+
+    this._viewport.extent([[padding.left, 0], [this.width - padding.right, height * 0.51]]);
+
+    this._brushG.call(this._viewport);
+
+    this._updateNavRuler();
+  }
+
   _createNavRuler() {
 
     let scaleStart = (this._offset > 0) ? this._offset : 1;
@@ -139,6 +155,7 @@ class ProtvistaPdbNavigation extends ProtvistaNavigation {
     } else if (!(this._highlightStart >= 0 && this._highlightEnd >= 0)) return;
     if (this._x(this._highlightEnd) - this._x(this._highlightStart) < 0) return;
     const width = Math.max(1, this._x(this._highlightEnd) - this._x(this._highlightStart));
+    if (!ev && width !== 1) return;
     this._highlighted
       .attr("y", 0)
       .attr("x", this._x(this._highlightStart))
