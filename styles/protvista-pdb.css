@@ -740,3 +740,7 @@ opacity: 0.4;
 #filter-uncertain .protvista_checkbox_input:checked + .protvista_checkbox_label::before {
 opacity: 1;
 }
+
+.feature {
+    cursor: pointer;
+}
