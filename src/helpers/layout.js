@@ -372,16 +372,6 @@ class LayoutHelper {
             }, bubbles: true, cancelable: true
             }));
 
-            navEle.dispatchEvent(
-                new CustomEvent("protvista-highlight-interval", {
-                    detail: {
-                        start: currentStartVal,
-                        end: currentEndVal,
-                    },
-                    bubbles: true,
-                    cancelable: true
-                })
-            );
 
         } else {
 

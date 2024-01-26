@@ -17,26 +17,39 @@ const height = 40,
   };
 
 class ProtvistaPdbNavigation extends ProtvistaNavigation {
-  
+
   connectedCallback() {
     this.style.display = 'block';
     this.style.width = '100%';
     this.width = this.offsetWidth;
 
     this._offset = parseFloat(this.getAttribute('offset')) || 0;
-
     this._length = parseFloat(this.getAttribute('length'));
     this._displaystart = parseFloat(this.getAttribute('displaystart')) || (this._offset > 0) ? this._offset : 1;
     this._displayend = parseFloat(this.getAttribute('displayend')) || (this._offset > 0) ? (this._length + this._offset - 1) : this._length;
-    this._highlightStart = parseFloat(this.getAttribute('highlightStart'));
-    this._highlightEnd = parseFloat(this.getAttribute('highlightEnd'));
+    this._highlightstart = parseFloat(this.getAttribute('highlightstart'));
+    this._highlightend = parseFloat(this.getAttribute('highlightend'));
+    this._highlightintervals = this.getAttribute("highlightintervals");
+
     this._highlightFragments = [];
 
     this._onResize = this._onResize.bind(this);
-    this.highlightInterval = this.highlightInterval.bind(this);
-    this.highlightFragments = this.highlightFragments.bind(this);
+    this._updateNavRuler = this._updateNavRuler.bind(this);
 
     this._createNavRuler();
+  }
+
+  static get observedAttributes() {
+    return ['length', 'displaystart', 'displayend', 'highlightstart', 'highlightend', 'width', 'highlightintervals'];
+  }
+
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue !== newValue) {
+      if (name === "highlightintervals") this[`_${name}`] = newValue;
+      else this[`_${name}`] = parseFloat(newValue);
+
+      this._updateNavRuler();
+    }
   }
 
   _onResize() {
@@ -134,40 +147,32 @@ class ProtvistaPdbNavigation extends ProtvistaNavigation {
 
     this._updateNavRuler();
 
-    const resize = () => { this._onResize(); this.highlightInterval(); };
+    const resize = () => this._onResize();
 
     if ('ResizeObserver' in window) {
       this._ro = new ResizeObserver(resize);
       this._ro.observe(this);
     }
     window.addEventListener("resize", resize);
-    window.addEventListener("protvista-highlight-interval", ev => this.highlightInterval(ev));
-    window.addEventListener("protvista-highlight-fragments", ev => this.highlightFragments(ev));
-    window.addEventListener("protvista-remove-highlight", () => this.removeHighlightInterval());
-    window.addEventListener("protvista-remove-fragments", () => this.removeHighlightFragments());
   }
 
-  highlightInterval(ev) {
-    if (ev) {
-      if (!(ev.detail.start >= 0 && ev.detail.end >= 0)) return;
-      this._highlightStart = ev.detail.start;
-      this._highlightEnd = ev.detail.end;
-    } else if (!(this._highlightStart >= 0 && this._highlightEnd >= 0)) return;
-    if (this._x(this._highlightEnd) - this._x(this._highlightStart) < 0) return;
-    const width = Math.max(1, this._x(this._highlightEnd) - this._x(this._highlightStart));
-    if (!ev && width !== 1) return;
-    this._highlighted
-      .attr("y", 0)
-      .attr("x", this._x(this._highlightStart))
-      .attr("width", width)
-      .attr("fill", width === 1 ? "rgb(0, 0, 0)" : "rgb(255, 235, 59)");
-  }
+  _updateNavRuler() {
+    if (this._x) {
+      this._updatePolygon();
 
-  removeHighlightInterval() {
-    this._highlighted
-      .attr("y", undefined)
-      .attr("x", undefined)
-      .attr("width", undefined);
+      this._updateLabels();
+
+      if (this._brushG) {
+        this.dontDispatch = true;
+
+        this._brushG.call(this._viewport.move, [this._x(this._displaystart), this._x(this._displayend)]);
+
+        this.dontDispatch = false;
+      }
+
+      this._updateObserveHighlight();
+      this._updateActiveHighlight();
+    }
   }
 
   removeHighlightFragments() {
@@ -175,9 +180,9 @@ class ProtvistaPdbNavigation extends ProtvistaNavigation {
       this._highlightFragments.forEach(rect => rect.remove());
   }
 
-  highlightFragments(ev) {
-    const intervalsString = (ev.detail.intervalsString || "").split(":")[1] || "";
-    if (!Boolean(intervalsString)) return;
+  _updateActiveHighlight() {
+    const intervalsString = (this._highlightintervals || "").split(":")[1] || "";
+    if (!Boolean(intervalsString)) { this.removeHighlightFragments(); return; }
 
     const intervals = intervalsString.split(",").filter(Boolean).map(ns => {
       const [start, end] = ns.split("-").map(s => parseInt(s));
@@ -197,6 +202,22 @@ class ProtvistaPdbNavigation extends ProtvistaNavigation {
         .attr("height", height)
         .attr("width", width);
     });
+  }
+
+  _updateObserveHighlight() {
+    if (this._highlightstart >= 0 && this._highlightend >= 0 && this._x(this._highlightend) - this._x(this._highlightstart) >= 0) {
+      const width = Math.max(1, this._x(this._highlightend) - this._x(this._highlightstart));
+      this._highlighted
+        .attr("y", 0)
+        .attr("x", this._x(this._highlightstart))
+        .attr("width", width)
+        .attr("fill", width === 1 ? "rgb(0, 0, 0)" : "rgb(255, 235, 59)");
+    } else {
+      this._highlighted
+        .attr("y", undefined)
+        .attr("x", undefined)
+        .attr("width", undefined);
+    }
   }
 
 }

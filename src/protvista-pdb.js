@@ -171,8 +171,6 @@ class ProtvistaPDB extends HTMLElement {
 
     setSubtrackFragmentsSelection(options) {
 
-        //Remove highlight fragments
-        if (!options.isEnabled) sendEvent(window, "protvista-remove-fragments", undefined);
         this.highlightActive = options.isEnabled;
 
         const trackEl = this.querySelector("protvista-pdb-track");
@@ -222,8 +220,6 @@ class ProtvistaPDB extends HTMLElement {
         sendEvent(trackEl, "change", { highlightintervals });
         sendEvents(otherProtvistaPdbs, "change", { highlightintervals });
         sendEvent(trackEl, "protvista-multiselect", { fragments });
-        if (!options.fragment && options.isEnabled && highlightintervals !== null)
-            sendEvent(window, "protvista-highlight-fragments", { intervalsString: highlightintervals })
     }
 }
 

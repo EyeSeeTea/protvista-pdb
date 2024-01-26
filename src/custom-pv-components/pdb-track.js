@@ -180,13 +180,6 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
             cancelable: true
           })
         );
-        this.dispatchEvent(
-          new CustomEvent("protvista-highlight-interval", {
-            detail: f,
-            bubbles: true,
-            cancelable: true
-          })
-        );
       })
       .on("mouseout", () => {
         const self = this;
@@ -219,13 +212,6 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
         this.dispatchEvent(
           new CustomEvent("protvista-mouseout", {
             detail: null,
-            bubbles: true,
-            cancelable: true
-          })
-        );
-
-        this.dispatchEvent(
-          new CustomEvent("protvista-remove-highlight", {
             bubbles: true,
             cancelable: true
           })
@@ -280,21 +266,6 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
             cancelable: true
           })
         ));
-        this.dispatchEvent(
-          new CustomEvent("protvista-remove-highlight", {
-            bubbles: true,
-            cancelable: true
-          })
-        );
-
-        //Add new highlight
-        this.dispatchEvent(
-          new CustomEvent("protvista-highlight-fragments", {
-            detail: { intervalsString: this._highlightintervals },
-            bubbles: true,
-            cancelable: true
-          })
-        );
       });
   }
 

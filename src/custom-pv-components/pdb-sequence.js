@@ -6,7 +6,7 @@ const height = 40;
 class ProtvistaPdbSequence extends ProtvistaSequence {
   connectedCallback() {
     super.connectedCallback();
-    this._highlightintervals = parseInt(this.getAttribute("highlightintervals"));
+    this._highlightintervals = this.getAttribute("highlightintervals");
   }
 
   static get observedAttributes() {
@@ -39,7 +39,7 @@ class ProtvistaPdbSequence extends ProtvistaSequence {
 
   refresh() {
     super.refresh();
-    if (this.axis) {
+    if (this._fragmentsGroup) {
       const intervalsString = (this._highlightintervals || "").split(":")[1] || "";
       if (Boolean(intervalsString)) {
         const intervals = intervalsString.split(",").filter(Boolean).map(ns => {
