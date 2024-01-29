@@ -7,6 +7,8 @@ class ProtvistaPdbSequence extends ProtvistaSequence {
   connectedCallback() {
     super.connectedCallback();
     this._highlightintervals = this.getAttribute("highlightintervals");
+
+    this._highlightedFragments = [];
   }
 
   static get observedAttributes() {
@@ -32,9 +34,9 @@ class ProtvistaPdbSequence extends ProtvistaSequence {
     this.refresh();
   }
 
-  removeHighlightFragments() {
-    if (this._highlightFragments && this._highlightFragments.length > 0)
-      this._highlightFragments.forEach(rect => rect.remove());
+  _removeHighlightFragments() {
+    if (this._highlightedFragments && this._highlightedFragments.length > 0)
+      this._highlightedFragments.forEach(rect => rect.remove());
   }
 
   refresh() {
@@ -47,9 +49,9 @@ class ProtvistaPdbSequence extends ProtvistaSequence {
           return { start, end };
         });
 
-        this.removeHighlightFragments();
+        this._removeHighlightFragments();
 
-        this._highlightFragments = intervals.map(({ start, end }) => {
+        this._highlightedFragments = intervals.map(({ start, end }) => {
           return this._fragmentsGroup
             .append("rect")
             .attr("fill", "rgba(255, 145, 0, 0.8)")
@@ -59,7 +61,7 @@ class ProtvistaPdbSequence extends ProtvistaSequence {
             .attr("height", height)
             .attr("width", this.getSingleBaseWidth() * (end - start + 1));
         });
-      } else this.removeHighlightFragments();
+      } else this._removeHighlightFragments();
     }
   }
 }

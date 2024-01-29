@@ -5,7 +5,6 @@ class LayoutHelper {
     constructor(ctx) {
         this.ctx = ctx;
         this.handlers = [];
-        this.ctx.addEventListener('mouseleave', () => { this.hideMoreOptions(); });
     }
 
     postProcessLayout() {
@@ -366,15 +365,16 @@ class LayoutHelper {
     
         if(typeof param !== 'undefined' && typeof param.highlight !== 'undefined' && param.highlight){
             navEle.dispatchEvent(new CustomEvent('change', {
-            detail: {
+                detail: {
                     highlightstart: currentStartVal,
                     highlightend: currentEndVal
-            }, bubbles: true, cancelable: true
+                }, bubbles: true, cancelable: true
             }));
 
 
         } else {
 
+            // set displaystart and displayend
             navEle.dispatchEvent(new CustomEvent('change', {
                 detail: {
                     displaystart: currentStartVal,
@@ -382,12 +382,13 @@ class LayoutHelper {
                 }, bubbles: true, cancelable: true
             }));
 
-          navEle.dispatchEvent(new CustomEvent('change', {
-            detail: {
-              highlightstart: null,
-              highlightend: null
-            }, bubbles: true, cancelable: true
-          }));
+            // remove highlights
+            navEle.dispatchEvent(new CustomEvent('change', {
+                detail: {
+                    highlightstart: null,
+                    highlightend: null
+                }, bubbles: true, cancelable: true
+            }));
 
         }
         
@@ -419,14 +420,18 @@ class LayoutHelper {
         }
     }
 
-    resetView(){
-
-        //Close open menus
+    hideTooltips() {
         this.ctx.querySelector('.settingsMenu').style.display = 'none';
         this.ctx.querySelector('.viewRangeMenu').style.display = 'none';
         this.ctx.querySelector('.highlightRangeMenu').style.display = 'none';
-        this.hideMoreOptions();
-        this.hideInfoTooltips();
+        [...this.ctx.querySelectorAll('.moreOptionsMenu')].forEach(m => m.style.display = 'none');
+        [...this.ctx.querySelectorAll('.infoTooltip')].forEach(m => m.style.display = 'none');
+    }
+
+    resetView() {
+
+        //Close open menus
+        this.hideTooltips();
 
         //Reset zoom
         if(this.ctx.zoomedTrack != ''){
@@ -507,7 +512,10 @@ class LayoutHelper {
 
     toggleTooltip(className, top, callback) {
         const menu = this.ctx.querySelector(className);
-        if (menu.style.display == 'none') {
+        const isHidden = menu.style.display == 'none';
+        //Close all open menus
+        this.hideTooltips();
+        if (isHidden) {
             const actionSource = menu.previousElementSibling.getBoundingClientRect();
             menu.style.left = (actionSource.x + actionSource.width + 16) + 'px';
             menu.style.top = (actionSource.y + top) + 'px';
@@ -520,18 +528,9 @@ class LayoutHelper {
         }
     }
 
-    openViewRangeMenu() {
-        //Close other open menus
-        this.ctx.querySelector('.settingsMenu').style.display = 'none';
-        this.ctx.querySelector('.highlightRangeMenu').style.display = 'none';
-        this.hideMoreOptions();
-        this.hideInfoTooltips();
-
-        function rangeMenu(_menu, ctx) {
-            let startEle = ctx.querySelector('.pvViewRangeMenuStart');
-            let endEle = ctx.querySelector('.pvViewRangeMenuEnd');
-
-            if (startEle.value == 0 || endEle.value == 0) {
+    rangeMenu(startEl, endEl) {
+        return function rangeMenu(_menu, ctx) {
+            if (startEl.value == 0 || endEl.value == 0) {
                 let currentStartVal = 1;
                 let currentEndVal = ctx.viewerData.length;
 
@@ -541,92 +540,81 @@ class LayoutHelper {
                     currentEndVal = navEle.getAttribute('displayend');
                 }
 
-                startEle.value = Math.round(currentStartVal);
-                endEle.value = Math.round(currentEndVal);
+                startEl.value = parseInt(currentStartVal);
+                endEl.value = parseInt(currentEndVal);
             }
         }
+    }    
 
-        this.toggleTooltip(".viewRangeMenu", -16, rangeMenu);
+    toggleViewRangeMenu() {
+        let startEl = this.ctx.querySelector('.pvViewRangeMenuStart');
+        let endEl = this.ctx.querySelector('.pvViewRangeMenuEnd');
+        this.toggleTooltip(".viewRangeMenu", -16, this.rangeMenu(startEl, endEl));
     }
 
-    openHighlightRangeMenu() {
-        //Close other open menus
-        this.ctx.querySelector('.settingsMenu').style.display = 'none';
-        this.ctx.querySelector('.viewRangeMenu').style.display = 'none';
-        this.hideMoreOptions();
-        this.hideInfoTooltips();
+    toggleHighlightRangeMenu() {
+        let startEl = this.ctx.querySelector('.pvHighlightRangeMenuStart');
+        let endEl = this.ctx.querySelector('.pvHighlightRangeMenuEnd');
+        this.toggleTooltip(".highlightRangeMenu", -16, this.rangeMenu(startEl, endEl));
+    }
 
-        function rangeMenu(_menu, ctx) {
-            let startEle = ctx.querySelector('.pvHighlightRangeMenuStart');
-            let endEle = ctx.querySelector('.pvHighlightRangeMenuEnd');
-
-            if (startEle.value == 0 || endEle.value == 0) {
-                let currentStartVal = 1;
-                let currentEndVal = ctx.viewerData.length;
-
-                let navEle = ctx.querySelectorAll('.pvTrack')[0];
-                if (navEle) {
-                    currentStartVal = navEle.getAttribute('displaystart');
-                    currentEndVal = navEle.getAttribute('displayend');
+    submitRangeMenu(start, end, callback) {
+        if (start != '' && end != '') {
+            start = parseInt(start);
+            end = parseInt(end);
+            if (end >= start) {
+                if (end > this.ctx.viewerData.length) {
+                    end = this.ctx.viewerData.length;
                 }
 
-                startEle.value = Math.round(currentStartVal);
-                endEle.value = Math.round(currentEndVal);
+                callback(start, end);
             }
         }
-
-        this.toggleTooltip(".highlightRangeMenu", -16, rangeMenu);
     }
 
-    openMoreOptions(trackIndex, subtrackIndex) {
-        //Check if already visible
-        const { state } = this.toggleTooltip(`.moreOptionsMenu_${trackIndex}_${subtrackIndex}`, -16);
-        //If is hidden is because it was already visible and got hidden
-        if (state === "hidden") { this.hideMoreOptions(); this.hideInfoTooltips(); return; }
-        //Close other open menus
-        this.ctx.querySelector('.settingsMenu').style.display = 'none';
-        this.ctx.querySelector('.viewRangeMenu').style.display = 'none';
-        this.ctx.querySelector('.highlightRangeMenu').style.display = 'none';
-        this.hideInfoTooltips();
-        this.hideMoreOptions();
+    pvViewRangeMenuSubmit() {
+        let startVal = this.ctx.querySelector('.pvViewRangeMenuStart').value;
+        let endVal = this.ctx.querySelector('.pvViewRangeMenuEnd').value;
+        this.submitRangeMenu(startVal, endVal, (start, end) => {
+            let resetParam = { start: parseInt(start), end: parseInt(end), highlight: false }
+            this.resetZoom(resetParam);
+            this.toggleViewRangeMenu();
+        });
+    }
+
+    pvHighlightRangeMenuSubmit() {
+        let startVal = this.ctx.querySelector('.pvHighlightRangeMenuStart').value;
+        let endVal = this.ctx.querySelector('.pvHighlightRangeMenuEnd').value;
+        this.submitRangeMenu(startVal, endVal, (start, end) => {
+            const fragment = { start: parseInt(start), end: parseInt(end), feature: { bestChainId: this.ctx.chainId } }
+            document.dispatchEvent(
+                new CustomEvent("protvista-click", {
+                    detail: fragment,
+                    bubbles: true,
+                    cancelable: true
+                })
+            );
+
+            this.ctx.setSubtrackFragmentsSelection({ isEnabled: true, fragment });
+            this.toggleHighlightRangeMenu();
+        });
+    }
+
+    toggleMoreOptions(trackIndex, subtrackIndex) {
         this.toggleTooltip(`.moreOptionsMenu_${trackIndex}_${subtrackIndex}`, -16);
     }
 
     showInfoTooltip(trackIndex, subtrackIndex) {
-        //Close other open menus
-        this.ctx.querySelector('.settingsMenu').style.display = 'none';
-        this.ctx.querySelector('.viewRangeMenu').style.display = 'none';
-        this.ctx.querySelector('.highlightRangeMenu').style.display = 'none';
-        this.hideInfoTooltips();
-
         const tooltipBox = this.ctx.querySelector(`.infoTooltip_${trackIndex}_${subtrackIndex}`);
-        const actionButton = this.ctx.querySelector(`.infoAction_${trackIndex}_${subtrackIndex}`).getBoundingClientRect();
-        tooltipBox.style.left = (actionButton.x + 24) + 'px';
-        tooltipBox.style.top = (actionButton.y + -32) + 'px';
+        const { x, y } = this.ctx.querySelector(`.infoAction_${trackIndex}_${subtrackIndex}`).getBoundingClientRect();
+        //hide after retrieving the position of the action source
+        this.hideTooltips();
+        tooltipBox.style.left = (x + 24) + 'px';
+        tooltipBox.style.top = (y + -32) + 'px';
         tooltipBox.style.display = 'block';
-        this.hideMoreOptions();
     }
 
-    hideMoreOptions() {
-        //Hide all more options menu
-        if (this.ctx)
-            [...this.ctx.querySelectorAll('.moreOptionsMenu')].forEach(m => m.style.display = 'none');
-    }
-
-    hideInfoTooltips(){
-        //Hide all info tooltips
-        if(this.ctx)
-            [...this.ctx.querySelectorAll('.infoTooltip')].forEach(m=>m.style.display = 'none');
-    }
-
-    openCategorySettingsMenu(){
-
-        //Close other open menus
-        this.ctx.querySelector('.viewRangeMenu').style.display = 'none';
-        this.ctx.querySelector('.highlightRangeMenu').style.display = 'none';
-        this.hideMoreOptions();
-        this.hideInfoTooltips();
-
+    toggleCategorySettingsMenu() {
         function settingsMenu(menu, ctx) {
             menu.querySelectorAll('.pvSectionChkBox').forEach((chkBox, chkBoxIndex) => {
                 chkBox.checked = ctx.hiddenSections.indexOf(chkBoxIndex) > -1;
@@ -634,54 +622,6 @@ class LayoutHelper {
         }
 
         this.toggleTooltip(".settingsMenu", -16, settingsMenu);
-    }
-
-    pvViewRangeMenuSubmit() {
-        let startVal = this.ctx.querySelector('.pvViewRangeMenuStart').value;
-        let endVal = this.ctx.querySelector('.pvViewRangeMenuEnd').value;
-
-        if(startVal != '' && endVal != ''){
-            startVal = parseFloat(startVal);
-            endVal = parseFloat(endVal);
-            if(endVal >= startVal){
-                if (endVal > this.ctx.viewerData.length) {
-                    endVal = this.ctx.viewerData.length;
-                }
-
-                let resetParam = { start: Math.round(startVal), end: Math.round(endVal), highlight: false }
-
-                this.resetZoom(resetParam);
-                this.openViewRangeMenu();
-            }
-        }
-    }
-
-    pvHighlightRangeMenuSubmit() {
-        let startVal = this.ctx.querySelector('.pvHighlightRangeMenuStart').value;
-        let endVal = this.ctx.querySelector('.pvHighlightRangeMenuEnd').value;
-
-        if (startVal != '' && endVal != '') {
-            startVal = parseFloat(startVal);
-            endVal = parseFloat(endVal);
-            if (endVal >= startVal) {
-                if (endVal > this.ctx.viewerData.length) {
-                    endVal = this.ctx.viewerData.length;
-                }
-
-                const fragment = { start: Math.round(startVal), end: Math.round(endVal), feature: { bestChainId: this.ctx.chainId } }
-
-                document.dispatchEvent(
-                    new CustomEvent("protvista-click", {
-                        detail: fragment,
-                        bubbles: true,
-                        cancelable: true
-                    })
-                );
-
-                this.ctx.setSubtrackFragmentsSelection({ isEnabled: true, fragment });
-                this.openHighlightRangeMenu();
-            }
-        }
     }
 
     pvCategorySettingsMenuSubmit(){
@@ -697,7 +637,7 @@ class LayoutHelper {
             }
         });
 
-        this.openCategorySettingsMenu();
+        this.toggleCategorySettingsMenu();
     }
 
     showVariantPlot(){

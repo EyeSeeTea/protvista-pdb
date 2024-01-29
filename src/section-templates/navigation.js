@@ -10,13 +10,13 @@ function PDBePvNavSection(ctx) {
             </span>
 
             <!-- Track categories settings menu -->
-            <span class="protvistaToolbarIcon" title="Hide sections" @click=${e => ctx.layoutHelper.openCategorySettingsMenu()}>
+            <span class="protvistaToolbarIcon" title="Hide sections" @click=${e => ctx.layoutHelper.toggleCategorySettingsMenu()}>
                 <i class="icon icon-common icon-eye-slash"></i>
             </span>
             <div class="settingsMenu viewMenuBox" style="display:none">
                 <div class="protvistaRangeMenuTitle">
                     <div>Hide sections</div>
-                    <span class="icon icon-functional protvistaMenuClose" data-icon="x" title="Close" @click=${e => {e.stopPropagation();ctx.layoutHelper.openCategorySettingsMenu()}}></span>
+                    <span class="icon icon-functional protvistaMenuClose" data-icon="x" title="Close" @click=${e => { e.stopPropagation(); ctx.layoutHelper.toggleCategorySettingsMenu() }}></span>
                 </div>
                 <div class="protvistaForm rangeForm" style="width:215px;max-height:400px;">
                     <table style="font-size:inherit;margin-bottom:0" class="pvHideOptionsTable">
@@ -35,8 +35,7 @@ function PDBePvNavSection(ctx) {
                         <tr style="display:none" class="variationOption"></tr>
                         </tbody>
                     </table>
-                    <br>
-                    <button class="button tiny" style="margin:0; letter-spacing: 1px;" @click=${e => ctx.layoutHelper.pvCategorySettingsMenuSubmit()}>Submit</button>
+                    <button class="button tiny" @click=${e => ctx.layoutHelper.pvCategorySettingsMenuSubmit()}>Submit</button>
                 </div>
             </div>
             <!-- Track categories settings menu -->

@@ -173,53 +173,52 @@ class ProtvistaPDB extends HTMLElement {
 
         this.highlightActive = options.isEnabled;
 
-        const trackEl = this.querySelector("protvista-pdb-track");
-        const protvistaPdbs = document.querySelectorAll("protvista-pdb");
-        const otherProtvistaPdbs = Array.from(protvistaPdbs)
-            .filter(el => el !== this)
+        const protvistaPdbs = Array.from(document.querySelectorAll("protvista-pdb"))
             .map(el => el.querySelector("protvista-pdb-track"))
             .filter(Boolean);
 
-        const changeIcon = (el, enabled) => {
-            if (!el.classList.contains("protvistaToolbarIcon")) {
+        const changeIcon = (el, enabled, options) => {
+            if (options.activateButton) {
                 if (enabled) el.classList.add("enabled");
                 else el.classList.remove("enabled");
             }
-            const icon = el.children[0];
-            const text = el.children[1];
-            if (icon && text) {
-                icon.classList.remove(enabled ? "icon-star" : "icon-undo-alt");
-                icon.classList.add(enabled ? "icon-undo-alt" : "icon-star");
-                text.innerText = enabled ? "Undo highlight" : "Highlight fragments";
-            } else if (icon && el.classList.contains("protvistaToolbarIcon")) {
-                icon.classList.remove(enabled ? "icon-star" : "icon-undo-alt");
-                icon.classList.add(enabled ? "icon-undo-alt" : "icon-star");
-                el.title = enabled ? "Undo highlight" : "Highlight region";
+
+            const iconEl = el.children[0];
+            const textEl = el.children[1];
+            const text = enabled ? options.text.enabled : options.text.disabled;
+
+            if (iconEl) {
+                iconEl.classList.remove(enabled ? "icon-star" : "icon-undo-alt");
+                iconEl.classList.add(enabled ? "icon-undo-alt" : "icon-star");
+            }
+
+            if (textEl) {
+                textEl.innerText = text;
+            } else {
+                el.title = text;
             }
         }
 
         document.querySelectorAll(".labelHighlightRight, .highlightToolbarIcon").forEach(el => {
             //in order to change the icon in all protvista-pdb instances
-            changeIcon(el, options.isEnabled);
+            changeIcon(el, options.isEnabled, {
+                activateButton: !el.classList.contains("protvistaToolbarIcon"),
+                text: {
+                    enabled: "Undo highlight",
+                    disabled: el.classList.contains("protvistaToolbarIcon") ? "Highlight region" : "Highlight fragments"
+                }
+            });
         });
 
-        let fragments;
-
-        if (options.isEnabled && options.fragment) {
-            fragments = [options.fragment];
-        } else if (options.isEnabled) {
-            const { subtrackData } = options;
-            const locFragments = flatten(subtrackData.locations.map(location => location.fragments));
-            fragments = locFragments.map(fragment => ({ ...fragment, feature: subtrackData }));
-        } else {
-            fragments = [];
-        }
+        const { subtrackData } = options;
+        const locFragments = options.isEnabled && subtrackData ? flatten(subtrackData.locations.map(location => location.fragments)).map(fragment => ({ ...fragment, feature: subtrackData })) : [];
+        const fragments = options.isEnabled && options.fragment ? [options.fragment] : locFragments;
 
         const intervals = fragments.map(fragment => [fragment.start, fragment.end].join("-"));
         const highlightintervals = intervals.length > 0 ? `:${intervals.join(",")}` : null;
-        sendEvent(trackEl, "change", { highlightintervals });
-        sendEvents(otherProtvistaPdbs, "change", { highlightintervals });
-        sendEvent(trackEl, "protvista-multiselect", { fragments });
+
+        sendEvents(protvistaPdbs, "change", { highlightintervals });
+        sendEvent(document, "protvista-multiselect", { fragments });
     }
 }
 

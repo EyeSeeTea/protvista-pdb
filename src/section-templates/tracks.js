@@ -21,22 +21,22 @@ function PDBePvTracksSection(ctx) {
                 <div class="protvistaRow pvSubtrackRow_${trackIndex}_${subtrackIndex}">
                     <div class="protvistaCol1 track-label" style=${styleMap(subtrackData.labelColor ? {backgroundColor: subtrackData.labelColor, borderBottom: '1px solid lightgrey'} : {})}>
                         <div class="pvSubtrackLabel_${trackIndex}_${subtrackIndex}" title="${subtrackData.label}"></div>
-                        <button type="button" class="more-options" title="Show options" @click=${e => ctx.layoutHelper.openMoreOptions(trackIndex, subtrackIndex)}><i class="icon icon-common icon-ellipsis-h"></i></button>
+                        <button type="button" class="more-options" title="Show options" @click=${e => ctx.layoutHelper.toggleMoreOptions(trackIndex, subtrackIndex)}><i class="icon icon-common icon-ellipsis-h"></i></button>
                         <!--More options menu-->
                         <div class="moreOptionsMenu viewMenuBox moreOptionsMenu_${trackIndex}_${subtrackIndex}" style="display:none">
-                            <button type="button" class="more-options-action ${getHighlightClass(ctx, trackIndex, subtrackIndex)}" @click=${(ev) => { highlightSubtrackFragments(ev, ctx, trackIndex, subtrackIndex, subtrackData); ctx.layoutHelper.hideMoreOptions(); }}>
+                            <button type="button" class="more-options-action ${getHighlightClass(ctx, trackIndex, subtrackIndex)}" @click=${(ev) => { highlightSubtrackFragments(ev, ctx, trackIndex, subtrackIndex, subtrackData); ctx.layoutHelper.hideTooltips(); }}>
                                 <span class="icon icon-common icon-star"></span>
                                 <span>Highlight fragments</span>
                             </button>
-                            <button type="button" class="more-options-action pvZoomIcon_${trackIndex}_${subtrackIndex}" @click=${e => { ctx.layoutHelper.zoomTrack({ start: 1, end: null, trackData: subtrackData }, trackIndex + '_' + subtrackIndex); ctx.layoutHelper.hideMoreOptions(); }}>
+                            <button type="button" class="more-options-action pvZoomIcon_${trackIndex}_${subtrackIndex}" @click=${e => { ctx.layoutHelper.zoomTrack({ start: 1, end: null, trackData: subtrackData }, trackIndex + '_' + subtrackIndex); ctx.layoutHelper.hideTooltips(); }}>
                                 <span class="icon icon-common icon-search-plus"></span>
                                 <span>Zoom in</span>
                             </button>
-                            ${subtrackData.help ? html`<button type="button" class="more-options-action infoAction_${trackIndex}_${subtrackIndex}" @click=${e => { ctx.layoutHelper.showInfoTooltip(trackIndex, subtrackIndex); ctx.layoutHelper.hideMoreOptions(); }}>
+                            ${subtrackData.help ? html`<button type="button" class="more-options-action infoAction_${trackIndex}_${subtrackIndex}" @click=${e => { ctx.layoutHelper.showInfoTooltip(trackIndex, subtrackIndex); }}>
                                 <span class="icon icon-common icon-info"></span>
                                 More info
                             </button>` : ""}
-                            <button type="button" class="more-options-action" @click=${e => { e.stopPropagation(); ctx.layoutHelper.hideSubTrack(trackIndex, subtrackIndex); ctx.layoutHelper.hideMoreOptions(); ctx.layoutHelper.hideInfoTooltips(); }}>
+                            <button type="button" class="more-options-action" @click=${e => { e.stopPropagation(); ctx.layoutHelper.hideSubTrack(trackIndex, subtrackIndex); ctx.layoutHelper.hideTooltips(); }}>
                                 <span class="icon icon-common icon-eye-slash"></span>
                                 Hide
                             </button>
@@ -44,7 +44,7 @@ function PDBePvTracksSection(ctx) {
                         <!--More options menu end-->
                         <!--Info tooltip-->
                             <div class="infoTooltip viewMenuBox infoTooltip_${trackIndex}_${subtrackIndex}">
-                                <div class="info-header"><span class="title">${subtrackData.label}</span><span class="icon icon-common icon-close" title="Close" @click=${e => ctx.layoutHelper.hideInfoTooltips()}></span></div>
+                                <div class="info-header"><span class="title">${subtrackData.label}</span><span class="icon icon-common icon-close" title="Close" @click=${e => ctx.layoutHelper.hideTooltips()}></span></div>
                                 ${subtrackData.help}
                             </div>
                         <!--Info tooltip end-->

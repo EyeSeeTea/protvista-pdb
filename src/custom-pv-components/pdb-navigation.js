@@ -24,14 +24,14 @@ class ProtvistaPdbNavigation extends ProtvistaNavigation {
     this.width = this.offsetWidth;
 
     this._offset = parseFloat(this.getAttribute('offset')) || 0;
-    this._length = parseFloat(this.getAttribute('length'));
-    this._displaystart = parseFloat(this.getAttribute('displaystart')) || (this._offset > 0) ? this._offset : 1;
-    this._displayend = parseFloat(this.getAttribute('displayend')) || (this._offset > 0) ? (this._length + this._offset - 1) : this._length;
-    this._highlightstart = parseFloat(this.getAttribute('highlightstart'));
-    this._highlightend = parseFloat(this.getAttribute('highlightend'));
+    this._length = parseInt(this.getAttribute('length'));
+    this._displaystart = parseInt(this.getAttribute('displaystart')) || (this._offset > 0) ? this._offset : 1;
+    this._displayend = parseInt(this.getAttribute('displayend')) || (this._offset > 0) ? (this._length + this._offset - 1) : this._length;
+    this._highlightstart = parseInt(this.getAttribute('highlightstart'));
+    this._highlightend = parseInt(this.getAttribute('highlightend'));
     this._highlightintervals = this.getAttribute("highlightintervals");
 
-    this._highlightFragments = [];
+    this._highlightedFragments = [];
 
     this._onResize = this._onResize.bind(this);
     this._updateNavRuler = this._updateNavRuler.bind(this);
@@ -46,7 +46,8 @@ class ProtvistaPdbNavigation extends ProtvistaNavigation {
   attributeChangedCallback(name, oldValue, newValue) {
     if (oldValue !== newValue) {
       if (name === "highlightintervals") this[`_${name}`] = newValue;
-      else this[`_${name}`] = parseFloat(newValue);
+      else if (name === "offset") this[`_${name}`] = parseFloat(newValue);
+      else this[`_${name}`] = parseInt(newValue);
 
       this._updateNavRuler();
     }
@@ -175,23 +176,23 @@ class ProtvistaPdbNavigation extends ProtvistaNavigation {
     }
   }
 
-  removeHighlightFragments() {
-    if (this._highlightFragments && this._highlightFragments.length > 0)
-      this._highlightFragments.forEach(rect => rect.remove());
+  _removeHighlightFragments() {
+    if (this._highlightedFragments && this._highlightedFragments.length > 0)
+      this._highlightedFragments.forEach(rect => rect.remove());
   }
 
   _updateActiveHighlight() {
     const intervalsString = (this._highlightintervals || "").split(":")[1] || "";
-    if (!Boolean(intervalsString)) { this.removeHighlightFragments(); return; }
+    if (Boolean(intervalsString)) {
 
     const intervals = intervalsString.split(",").filter(Boolean).map(ns => {
       const [start, end] = ns.split("-").map(s => parseInt(s));
       return { start, end };
     });
 
-    this.removeHighlightFragments();
+      this._removeHighlightFragments();
 
-    this._highlightFragments = intervals.map(({ start, end }) => {
+      this._highlightedFragments = intervals.map(({ start, end }) => {
       const width = Math.max(1, this._x(end) - this._x(start));
       return this._fragmentsGroup
         .append("rect")
@@ -202,6 +203,7 @@ class ProtvistaPdbNavigation extends ProtvistaNavigation {
         .attr("height", height)
         .attr("width", width);
     });
+    } else this._removeHighlightFragments();
   }
 
   _updateObserveHighlight() {
