@@ -25,7 +25,7 @@ class LayoutHelper {
             seqSectionEle.style.paddingRight = this.ctx.scrollbarWidth+'px';
             setTimeout(() => {
                 let seqEle = this.ctx.querySelectorAll('protvista-sequence')[0];
-                if(seqEle) seqEle.firstElementChild.firstElementChild.style.width = '100%';
+                if (seqEle && seqEle.firstElementChild && seqEle.firstElementChild.firstElementChild) seqEle.firstElementChild.firstElementChild.style.width = '100%';
             },100);
         }
 
