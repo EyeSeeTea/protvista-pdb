@@ -18,17 +18,25 @@ const height = 40,
 
 class ProtvistaPdbNavigation extends ProtvistaNavigation {
 
+  getIntAttribute(attribute) {
+    return parseInt(this.getAttribute(attribute));
+  }
+
+  getFloatAttribute(attribute) {
+    return parseFloat(this.getAttribute(attribute));
+  }
+
   connectedCallback() {
     this.style.display = 'block';
     this.style.width = '100%';
     this.width = this.offsetWidth;
 
-    this._offset = parseFloat(this.getAttribute('offset')) || 0;
-    this._length = parseInt(this.getAttribute('length'));
-    this._displaystart = parseInt(this.getAttribute('displaystart')) || (this._offset > 0) ? this._offset : 1;
-    this._displayend = parseInt(this.getAttribute('displayend')) || (this._offset > 0) ? (this._length + this._offset - 1) : this._length;
-    this._highlightstart = parseInt(this.getAttribute('highlightstart'));
-    this._highlightend = parseInt(this.getAttribute('highlightend'));
+    this._offset = this.getFloatAttribute('offset') || 0;
+    this._length = this.getIntAttribute('length');
+    this._displaystart = this.getIntAttribute('displaystart') || (this._offset > 0) ? this._offset : 1;
+    this._displayend = this.getIntAttribute('displayend') || (this._offset > 0) ? (this._length + this._offset - 1) : this._length;
+    this._highlightstart = this.getIntAttribute('highlightstart');
+    this._highlightend = this.getIntAttribute('highlightend');
     this._highlightintervals = this.getAttribute("highlightintervals");
 
     this._highlightedFragments = [];
@@ -44,13 +52,9 @@ class ProtvistaPdbNavigation extends ProtvistaNavigation {
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
-    if (oldValue !== newValue) {
-      if (name === "highlightintervals") this[`_${name}`] = newValue;
-      else if (name === "offset") this[`_${name}`] = parseFloat(newValue);
-      else this[`_${name}`] = parseInt(newValue);
-
-      this._updateNavRuler();
-    }
+    if (oldValue === newValue) return;
+    this[`_${name}`] = name === "highlightintervals" ? newValue : name === "offset" ? parseFloat(newValue) : parseInt(newValue);
+    this._updateNavRuler();
   }
 
   _onResize() {
@@ -144,7 +148,6 @@ class ProtvistaPdbNavigation extends ProtvistaNavigation {
       .attr('class', 'zoom-polygon')
       .attr('fill', '#777')
       .attr('fill-opacity','0.3');
-
 
     this._updateNavRuler();
 
