@@ -33,8 +33,8 @@ class ProtvistaPdbNavigation extends ProtvistaNavigation {
 
     this._offset = this.getFloatAttribute('offset') || 0;
     this._length = this.getIntAttribute('length');
-    this._displaystart = this.getIntAttribute('displaystart') || (this._offset > 0) ? this._offset : 1;
-    this._displayend = this.getIntAttribute('displayend') || (this._offset > 0) ? (this._length + this._offset - 1) : this._length;
+    this._displaystart = this.getIntAttribute('displaystart') || ((this._offset > 0) ? this._offset : 1);
+    this._displayend = this.getIntAttribute('displayend') || ((this._offset > 0) ? (this._length + this._offset - 1) : this._length);
     this._highlightstart = this.getIntAttribute('highlightstart');
     this._highlightend = this.getIntAttribute('highlightend');
     this._highlightintervals = this.getAttribute("highlightintervals");
