@@ -1,9 +1,9 @@
 // original PV components
 import ProtvistaManager from "protvista-manager";
-import ProtvistaSequence from "protvista-sequence";
 import ProtvistaFilter from "protvista-filter";
 
 // customised PV components
+import ProtvistaPdbSequence from "./custom-pv-components/pdb-sequence";
 import ProtvistaPdbNavigation from "./custom-pv-components/pdb-navigation";
 import ProtvistaPdbTrack from './custom-pv-components/pdb-track'
 import ProtvistaPdbScHistogram from './custom-pv-components/pdb-sc-histogram'
@@ -16,8 +16,8 @@ import { loadComponent } from "./loadComponent";
 
 const registerWebComponents = function() {
     loadComponent("protvista-manager", ProtvistaManager);
-    loadComponent("protvista-sequence", ProtvistaSequence);
     loadComponent("protvista-filter", ProtvistaFilter);
+    loadComponent("protvista-pdb-sequence", ProtvistaPdbSequence);
     loadComponent("protvista-pdb-navigation", ProtvistaPdbNavigation);
     loadComponent("protvista-pdb-track", ProtvistaPdbTrack);
     loadComponent("protvista-pdb-sc-histogram", ProtvistaPdbScHistogram);

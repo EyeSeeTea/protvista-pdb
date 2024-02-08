@@ -17,6 +17,27 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
     return [...ProtvistaTrack.observedAttributes, "highlightintervals"];
   }
 
+  applyZoomTranslation() {
+    if (!this.svg || !this._originXScale) return; // Calculating the scale factor based in the current start/end coordinates and the length of the sequence.
+
+    const k = Math.max(1, // +1 because the displayend base should be included
+      this.length / (1 + this._displayend - this._displaystart)); // The deltaX gets calculated using the position of the first base to display in original scale
+
+    const dx = -this._originXScale(this._displaystart);
+    this.dontDispatch = true; // This is to avoid infinite loops
+
+    const { height, width } = this.svg.node().getBoundingClientRect();
+    if (height <= 0 || width <= 0) return; // Fix d3 error: https://github.com/Webiks/force-horse/issues/19#issuecomment-1242800033
+
+    this.svg.call( // We trigger a zoom action
+      this.zoom.transform, d3.zoomIdentity // Identity transformation
+        .scale(k) // Scaled by our scaled factor
+        .translate(dx, 0) // Translated by the delta
+    );
+    this.dontDispatch = false;
+    this.refresh();
+  }
+
   _createTrack() {
     this._layoutObj.init(this._data);
 
@@ -117,7 +138,7 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
         let lightColor = this.colorMixer(-0.3, apiColor); //lightened by 30%
         return lightColor;
       })
-      .on("mouseover", (f, i) => {
+      .on("mouseenter", (f, i) => {
         const self = this;
         const e = d3.event;
   
@@ -130,7 +151,17 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
           }, 50);
         }
         
-        this.dispatchEvent(
+        const protvistaPdbs = document.querySelectorAll("protvista-pdb");
+        const pdbFirstTracks = Array.from(protvistaPdbs)
+          .map(el => el.querySelector("protvista-pdb-track"))
+          .filter(Boolean);
+
+        /* This is not the best way to perform this. The event "change"
+        already comes from protvista, that listen (`addListeners`) and updates
+        each element (`this.protvistaElements` from ProtVistaManager) attributes.
+        So in order to update all tracks, we need to fire each event on some track of
+        each protvista-pdb instance. Also on 'mouseout'. */
+        pdbFirstTracks.forEach(el => el.dispatchEvent(
           new CustomEvent("change", {
             detail: {
               highlightend: f.end,
@@ -139,7 +170,8 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
             bubbles: true,
             cancelable: true
           })
-        );
+        ));
+
         f.trackIndex = i;
         this.dispatchEvent(
           new CustomEvent("protvista-mouseover", {
@@ -161,7 +193,12 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
           }, 50);
         }
 
-        this.dispatchEvent(
+        const protvistaPdbs = document.querySelectorAll("protvista-pdb");
+        const pdbFirstTracks = Array.from(protvistaPdbs)
+          .map(el => el.querySelector("protvista-pdb-track"))
+          .filter(Boolean);
+
+        pdbFirstTracks.forEach(el => el.dispatchEvent(
           new CustomEvent("change", {
             detail: {
               highlightend: null,
@@ -170,7 +207,8 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
             bubbles: true,
             cancelable: true
           })
-        );
+        ));
+
         this.dispatchEvent(
           new CustomEvent("protvista-mouseout", {
             detail: null,
@@ -196,6 +234,38 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
             cancelable: true
           })
         );
+
+        this.dispatchEvent(
+          new CustomEvent("protvista-highlight-selection", {
+            detail: {
+              fragment: {
+                start: d.start,
+                end: d.end,
+                color: d.color,
+                feature: d.feature
+              }
+            },
+            bubbles: true,
+            cancelable: true
+          })
+        );
+
+        //Remove previous highlight
+        const protvistaPdbs = document.querySelectorAll("protvista-pdb");
+        const pdbFirstTracks = Array.from(protvistaPdbs)
+          .map(el => el.querySelector("protvista-pdb-track"))
+          .filter(Boolean);
+
+        pdbFirstTracks.forEach(el => el.dispatchEvent(
+          new CustomEvent("change", {
+            detail: {
+              highlightend: null,
+              highlightstart: null
+            },
+            bubbles: true,
+            cancelable: true
+          })
+        ));
       });
   }
 
@@ -216,8 +286,9 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
     this.removeAllTooltips();
     const tooltip = document.createElement("protvista-tooltip");
     
-    tooltip.left =  e.pageX + 15; 
-    tooltip.top = e.pageY + 5;
+    tooltip.left = e.pageX + 12;
+    tooltip.top = e.pageY + 12;
+    tooltip.style.marginRight = 32 + 'px';
     tooltip.style.marginLeft = 0;
     tooltip.style.marginTop = 0;
     
@@ -235,15 +306,15 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
     const toolTipEl = d3.select(tooltip).node();
     const tooltipDom = toolTipEl.getBoundingClientRect();
     const bottomSpace = window.innerHeight - e.clientY;
-    const rightSpace = window.innerWidth - e.clientX;
+    const rightSpace = document.documentElement.clientWidth - e.clientX; //not window.innerWidth in order to remove possible scrollbars
     
-    if(bottomSpace < 130){
-      toolTipEl.style.top = e.pageY - (tooltipDom.height + 20) +'px';
+    if (bottomSpace < tooltipDom.height) {
+      toolTipEl.style.top = e.pageY - (tooltipDom.height + 8) + 'px';
     }
 
-    if(rightSpace < 300){
+    if (rightSpace < tooltipDom.width) {
       toolTipEl.style.left = '';
-      toolTipEl.style.right = (rightSpace - 10)+'px';
+      toolTipEl.style.right = (rightSpace - 12) + 'px';
     }
   }
 
@@ -272,7 +343,7 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
     if(h)return"rgb"+(f?"a(":"(")+r+","+g+","+b+(f?","+m(a*1000)/1000:"")+")";
     else return"#"+(4294967296+r*16777216+g*65536+b*256+(f?m(a*255):0)).toString(16).slice(1,f?undefined:-2)
   }
-  
+
   _updateHighlight() {
     super._updateHighlight();
 
@@ -296,7 +367,7 @@ class ProtvistaPdbTrack extends ProtvistaTrack {
       .append("rect")
       .merge(selection)
       .attr("class", "hi")
-      .attr("fill", "rgba(255, 235, 59, 0.8)")
+      .attr("fill", "rgba(255, 145, 0, 0.8)")
       .attr('stroke', 'black')
       .attr("height", this._height)
       .attr("x", interval => this.getXFromSeqPosition(interval.start))

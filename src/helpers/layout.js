@@ -5,7 +5,6 @@ class LayoutHelper {
     constructor(ctx) {
         this.ctx = ctx;
         this.handlers = [];
-        this.ctx.addEventListener('mouseleave', () => { this.hideMoreOptions(); });
     }
 
     postProcessLayout() {
@@ -26,7 +25,7 @@ class LayoutHelper {
             seqSectionEle.style.paddingRight = this.ctx.scrollbarWidth+'px';
             setTimeout(() => {
                 let seqEle = this.ctx.querySelectorAll('protvista-sequence')[0];
-                if(seqEle) seqEle.firstElementChild.firstElementChild.style.width = '100%';
+                if (seqEle && seqEle.firstElementChild && seqEle.firstElementChild.firstElementChild) seqEle.firstElementChild.firstElementChild.style.width = '100%';
             },100);
         }
 
@@ -365,28 +364,31 @@ class LayoutHelper {
         }
     
         if(typeof param !== 'undefined' && typeof param.highlight !== 'undefined' && param.highlight){
-          navEle.dispatchEvent(new CustomEvent('change', {
-            detail: {
-              highlightstart: currentStartVal,
-              highlightend: currentEndVal
-            }, bubbles: true, cancelable: true
-          }));
-          
-        }else{
-
             navEle.dispatchEvent(new CustomEvent('change', {
                 detail: {
-                  displaystart: currentStartVal,
-                  displayend: currentEndVal
+                    highlightstart: currentStartVal,
+                    highlightend: currentEndVal
                 }, bubbles: true, cancelable: true
-            }));  
-    
-          navEle.dispatchEvent(new CustomEvent('change', {
-            detail: {
-              highlightstart: null,
-              highlightend: null
-            }, bubbles: true, cancelable: true
-          }));
+            }));
+
+
+        } else {
+
+            // set displaystart and displayend
+            navEle.dispatchEvent(new CustomEvent('change', {
+                detail: {
+                    displaystart: currentStartVal,
+                    displayend: currentEndVal
+                }, bubbles: true, cancelable: true
+            }));
+
+            // remove highlights
+            navEle.dispatchEvent(new CustomEvent('change', {
+                detail: {
+                    highlightstart: null,
+                    highlightend: null
+                }, bubbles: true, cancelable: true
+            }));
 
         }
         
@@ -418,13 +420,18 @@ class LayoutHelper {
         }
     }
 
-    resetView(){
+    hideTooltips() {
+        this.ctx.querySelector('.settingsMenu').style.display = 'none';
+        this.ctx.querySelector('.viewRangeMenu').style.display = 'none';
+        this.ctx.querySelector('.highlightRangeMenu').style.display = 'none';
+        [...this.ctx.querySelectorAll('.moreOptionsMenu')].forEach(m => m.style.display = 'none');
+        [...this.ctx.querySelectorAll('.infoTooltip')].forEach(m => m.style.display = 'none');
+    }
+
+    resetView() {
 
         //Close open menus
-        this.ctx.querySelector('.settingsMenu').style.display = 'none';
-        this.ctx.querySelector('.rangeMenu').style.display = 'none';
-        this.hideMoreOptions();
-        this.hideInfoTooltips();
+        this.hideTooltips();
 
         //Reset zoom
         if(this.ctx.zoomedTrack != ''){
@@ -500,33 +507,30 @@ class LayoutHelper {
         this.ctx.hiddenSections = [];
         this.ctx.hiddenSubtracks = Object.assign({},{});
           
-        
+        this.ctx.setSubtrackFragmentsSelection({ isEnabled: false });
     }
 
-    openTooltip(className, top, callback) {
+    toggleTooltip(className, top, callback) {
         const menu = this.ctx.querySelector(className);
-        if (menu.style.display == 'none') {
+        const isHidden = menu.style.display == 'none';
+        //Close all open menus
+        this.hideTooltips();
+        if (isHidden) {
             const actionSource = menu.previousElementSibling.getBoundingClientRect();
             menu.style.left = (actionSource.x + actionSource.width + 16) + 'px';
             menu.style.top = (actionSource.y + top) + 'px';
             menu.style.display = 'block';
             if (callback) callback(menu, this.ctx);
+            return { state: "visible" };
         } else {
             menu.style.display = 'none';
+            return { state: "hidden" };
         }
     }
 
-    openRangeMenu() {
-        //Close other open menus
-        this.ctx.querySelector('.settingsMenu').style.display = 'none';
-        this.hideMoreOptions();
-        this.hideInfoTooltips();
-
-        function rangeMenu(_menu, ctx) {
-            let startEle = ctx.querySelector('.pvRangeMenuStart');
-            let endEle = ctx.querySelector('.pvRangeMenuEnd');
-
-            if (startEle.value == 0 || endEle.value == 0) {
+    rangeMenu(startEl, endEl) {
+        return function rangeMenu(_menu, ctx) {
+            if (startEl.value == 0 || endEl.value == 0) {
                 let currentStartVal = 1;
                 let currentEndVal = ctx.viewerData.length;
 
@@ -536,88 +540,88 @@ class LayoutHelper {
                     currentEndVal = navEle.getAttribute('displayend');
                 }
 
-                startEle.value = Math.round(currentStartVal);
-                endEle.value = Math.round(currentEndVal);
+                startEl.value = parseInt(currentStartVal);
+                endEl.value = parseInt(currentEndVal);
             }
         }
+    }    
 
-        this.openTooltip(".rangeMenu", 16, rangeMenu);
+    toggleViewRangeMenu() {
+        let startEl = this.ctx.querySelector('.pvViewRangeMenuStart');
+        let endEl = this.ctx.querySelector('.pvViewRangeMenuEnd');
+        this.toggleTooltip(".viewRangeMenu", -16, this.rangeMenu(startEl, endEl));
     }
 
-    openMoreOptions(trackIndex, subtrackIndex) {
-        //Close other open menus
-        this.ctx.querySelector('.settingsMenu').style.display = 'none';
-        this.ctx.querySelector('.rangeMenu').style.display = 'none';
-        this.hideInfoTooltips();
-        this.hideMoreOptions();
-        this.openTooltip(`.moreOptionsMenu_${trackIndex}_${subtrackIndex}`, -16);
+    toggleHighlightRangeMenu() {
+        let startEl = this.ctx.querySelector('.pvHighlightRangeMenuStart');
+        let endEl = this.ctx.querySelector('.pvHighlightRangeMenuEnd');
+        this.toggleTooltip(".highlightRangeMenu", -16, this.rangeMenu(startEl, endEl));
+    }
+
+    submitRangeMenu(start, end, callback) {
+        if (start != '' && end != '') {
+            start = parseInt(start);
+            end = parseInt(end);
+            if (end >= start) {
+                if (end > this.ctx.viewerData.length) {
+                    end = this.ctx.viewerData.length;
+                }
+
+                callback(start, end);
+            }
+        }
+    }
+
+    pvViewRangeMenuSubmit() {
+        let startVal = this.ctx.querySelector('.pvViewRangeMenuStart').value;
+        let endVal = this.ctx.querySelector('.pvViewRangeMenuEnd').value;
+        this.submitRangeMenu(startVal, endVal, (start, end) => {
+            let resetParam = { start: parseInt(start), end: parseInt(end), highlight: false }
+            this.resetZoom(resetParam);
+            this.toggleViewRangeMenu();
+        });
+    }
+
+    pvHighlightRangeMenuSubmit() {
+        let startVal = this.ctx.querySelector('.pvHighlightRangeMenuStart').value;
+        let endVal = this.ctx.querySelector('.pvHighlightRangeMenuEnd').value;
+        this.submitRangeMenu(startVal, endVal, (start, end) => {
+            const fragment = { start: parseInt(start), end: parseInt(end), feature: { bestChainId: this.ctx.chainId } }
+            document.dispatchEvent(
+                new CustomEvent("protvista-click", {
+                    detail: fragment,
+                    bubbles: true,
+                    cancelable: true
+                })
+            );
+
+            this.ctx.setSubtrackFragmentsSelection({ isEnabled: true, fragment });
+            this.toggleHighlightRangeMenu();
+        });
+    }
+
+    toggleMoreOptions(trackIndex, subtrackIndex) {
+        this.toggleTooltip(`.moreOptionsMenu_${trackIndex}_${subtrackIndex}`, -16);
     }
 
     showInfoTooltip(trackIndex, subtrackIndex) {
-        //Close other open menus
-        this.ctx.querySelector('.settingsMenu').style.display = 'none';
-        this.ctx.querySelector('.rangeMenu').style.display = 'none';
-        this.hideInfoTooltips();
-
         const tooltipBox = this.ctx.querySelector(`.infoTooltip_${trackIndex}_${subtrackIndex}`);
-        const actionButton = this.ctx.querySelector(`.infoAction_${trackIndex}_${subtrackIndex}`).getBoundingClientRect();
-        tooltipBox.style.left = (actionButton.x + 24) + 'px';
-        tooltipBox.style.top = (actionButton.y + -32) + 'px';
+        const { x, y } = this.ctx.querySelector(`.infoAction_${trackIndex}_${subtrackIndex}`).getBoundingClientRect();
+        //hide after retrieving the position of the action source
+        this.hideTooltips();
+        tooltipBox.style.left = (x + 24) + 'px';
+        tooltipBox.style.top = (y + -32) + 'px';
         tooltipBox.style.display = 'block';
-        this.hideMoreOptions();
     }
 
-    hideMoreOptions() {
-        //Hide all more options menu
-        if (this.ctx)
-            [...this.ctx.querySelectorAll('.moreOptionsMenu')].forEach(m => m.style.display = 'none');
-    }
-
-    hideInfoTooltips(){
-        //Hide all info tooltips
-        if(this.ctx)
-            [...this.ctx.querySelectorAll('.infoTooltip')].forEach(m=>m.style.display = 'none');
-    }
-
-    openCategorySettingsMenu(){
-
-        //Close other open menus
-        this.ctx.querySelector('.rangeMenu').style.display = 'none';
-        this.hideMoreOptions();
-        this.hideInfoTooltips();
-
+    toggleCategorySettingsMenu() {
         function settingsMenu(menu, ctx) {
             menu.querySelectorAll('.pvSectionChkBox').forEach((chkBox, chkBoxIndex) => {
                 chkBox.checked = ctx.hiddenSections.indexOf(chkBoxIndex) > -1;
             });
         }
 
-        this.openTooltip(".settingsMenu", 16, settingsMenu);
-    }
-
-    pvRangeMenuSubmit(){
-        let startVal = this.ctx.querySelector('.pvRangeMenuStart').value;
-        let endVal = this.ctx.querySelector('.pvRangeMenuEnd').value;
-
-        if(startVal != '' && endVal != ''){
-            startVal = parseFloat(startVal);
-            endVal = parseFloat(endVal);
-            if(endVal >= startVal){
-                if (endVal > this.ctx.viewerData.length) {
-                    endVal = this.ctx.viewerData.length;
-                }
-
-                let resetParam = {start: Math.round(startVal), end: Math.round(endVal)}
-
-                let highlightCheckEle = this.ctx.querySelector('.pvRangeMenuHighlight');
-                if(highlightCheckEle.checked){
-                    resetParam['highlight'] = true;
-                }
-
-                this.resetZoom(resetParam);
-                this.openRangeMenu();
-            }
-        }
+        this.toggleTooltip(".settingsMenu", -16, settingsMenu);
     }
 
     pvCategorySettingsMenuSubmit(){
@@ -633,7 +637,7 @@ class LayoutHelper {
             }
         });
 
-        this.openCategorySettingsMenu();
+        this.toggleCategorySettingsMenu();
     }
 
     showVariantPlot(){
