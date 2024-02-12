@@ -329,7 +329,7 @@
     border: 1px solid #828181;
     background-color: #828181;
     border-radius: 50%;
-    margin-right: 10px;
+    margin-right: 6px;
     cursor: pointer;
     align-items: center;
     justify-content: center;
@@ -360,7 +360,7 @@
 .protvistaMenuClose{
     position: absolute;
     right: 10px;
-    top: 14px;
+    top: 10px;
     color: #6d6d6d;
     font-size: 12px;
     cursor: pointer;
@@ -430,6 +430,7 @@ protvista-tooltip {
     -webkit-box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
     -moz-box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
     box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
+    background-color: #fff;
     /*opacity: .9;*/
 }
 
@@ -458,6 +459,9 @@ protvista-tooltip .tooltip-body {
 protvista-tooltip .tooltip-header {
     background-color: #595959;
     line-height: 3em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 /* protvista-tooltip .tooltip-header::before {
@@ -735,4 +739,19 @@ opacity: 0.4;
 
 #filter-uncertain .protvista_checkbox_input:checked + .protvista_checkbox_label::before {
 opacity: 1;
+}
+
+.feature {
+    cursor: pointer;
+}
+
+.rangeForm .inputs {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.rangeForm .button {
+    display: block;
+    margin: 1.5em 0 0;
+    letter-spacing: 1px;
 }
